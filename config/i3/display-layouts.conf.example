@@ -1,0 +1,7 @@
+# Display layout rules: EDID_OR_OUTPUT_NAME LAYOUT
+# Later matching rules override earlier ones.
+# Layout values: above, left, right, external-only, mirror.
+#
+# Examples:
+# HDMI-1 left
+# DP-1 right

@@ -1,0 +1,104 @@
+configuration {
+    show-icons: false;
+    modi: "dmenu";
+    font: "JetBrainsMono Nerd Font Mono 11";
+}
+
+* {
+    bg:         #1e1e1a;
+    bg-card:    #2a2820;
+    bg-hover:   #3a362a;
+    fg:         #e8e0c8;
+    fg-dim:     #a09880;
+    accent:     #f0d890;
+    red:        #e67e80;
+    border-c:   #4a4430;
+
+    background-color:   @bg;
+    text-color:         @fg;
+    separatorcolor:     @border-c;
+}
+
+window {
+    width: 680px;
+    transparency: "real";
+    border: 0px;
+    border-radius: 0px 0px 14px 14px;
+    background-color: @bg;
+    location: north;
+    y-offset: 0px;
+    padding: 0px;
+}
+
+mainbox {
+    spacing: 0px;
+    padding: 0px;
+    children: [ header, sep, listview ];
+}
+
+header {
+    enabled: true;
+    padding: 14px 20px 10px 20px;
+    background-color: @bg;
+    children: [ header-left, header-right ];
+    orientation: horizontal;
+}
+
+header-left {
+    expand: false;
+    str: " Control Center";
+    text-color: @accent;
+    font: "JetBrainsMono Nerd Font Mono 12";
+    vertical-align: 0.5;
+}
+
+header-right {
+    expand: false;
+    str: "";
+}
+
+sep {
+    enabled: true;
+    height: 1px;
+    margin: 0px 16px 8px 16px;
+    background-color: @border-c;
+}
+
+listview {
+    lines: 5;
+    columns: 2;
+    fixed-height: false;
+    border: 0px;
+    scrollbar: false;
+    spacing: 4px;
+    padding: 4px 16px 14px 16px;
+    background-color: transparent;
+}
+
+element {
+    padding: 10px 14px;
+    border: 0px;
+    border-radius: 8px;
+    background-color: @bg-card;
+    text-color: @fg;
+    cursor: pointer;
+    spacing: 8px;
+}
+
+element normal.urgent {
+    text-color: @red;
+}
+
+element selected.normal {
+    background-color: @bg-hover;
+    text-color: @accent;
+}
+
+element alternate.normal {
+    background-color: @bg;
+}
+
+element-text {
+    vertical-align: 0.5;
+    font: "JetBrainsMono Nerd Font Mono 11";
+}

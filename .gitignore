@@ -1,0 +1,18 @@
+# Runtime/generated files
+config/i3/workspace-output-routing.conf
+config/i3/display-layouts.conf
+config/kitty/current-bg
+
+# Local backups and editor state
+*.bak
+*.tmp
+*~
+.DS_Store
+
+# Python/cache artifacts
+__pycache__/
+*.pyc
+
+# Local logs/screenshots
+*.log
+i3-left-layout-check*.png

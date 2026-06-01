@@ -1,0 +1,107 @@
+configuration {
+    modi: "drun,run,window";
+    show-icons: true;
+    drun-display-format: "{name}";
+    font: "JetBrainsMono Nerd Font Mono 12";
+    location: 0;
+    disable-history: false;
+    hide-scrollbar: true;
+    sidebar-mode: false;
+    display-drun: "apps";
+    display-run: "run";
+    display-window: "win";
+}
+
+* {
+    bg:             #f5ebe1ff;
+    bg-alt:         #dcd3caff;
+    fg:             #1a1a1a;
+    fg-muted:       #6a6258;
+    border:         #1a1a1a;
+    accent:         #ca7081;
+    urgent:         #ca7081;
+    selected-bg:    #1a1a1aff;
+    selected-fg:    #f5ebe1;
+
+    background-color: @bg;
+    text-color: @fg;
+}
+
+window {
+    width: 40%;
+    transparency: "real";
+    border: 3px;
+    border-color: @border;
+    border-radius: 14px;
+    background-color: @bg;
+    location: center;
+    y-offset: 0px;
+    padding: 20px;
+}
+
+mainbox {
+    spacing: 12px;
+    children: [ inputbar, message, listview ];
+}
+
+inputbar {
+    spacing: 10px;
+    padding: 12px 14px;
+    border: 0px;
+    border-radius: 8px;
+    background-color: @bg-alt;
+    children: [ prompt, entry ];
+}
+
+prompt {
+    text-color: @accent;
+    str: ">";
+}
+
+entry {
+    placeholder: "Search";
+    placeholder-color: @fg-muted;
+}
+
+message {
+    border: 0px;
+    padding: 0px;
+}
+
+listview {
+    lines: 8;
+    columns: 1;
+    fixed-height: false;
+    border: 0px;
+    scrollbar: false;
+    spacing: 8px;
+    background-color: transparent;
+}
+
+element {
+    padding: 12px 14px;
+    border: 0px;
+    border-radius: 8px;
+    background-color: @bg-alt;
+    text-color: @fg;
+    cursor: pointer;
+    spacing: 10px;
+}
+
+element normal.urgent {
+    text-color: @urgent;
+}
+
+element selected.normal {
+    background-color: @selected-bg;
+    text-color: @selected-fg;
+}
+
+element-text {
+    vertical-align: 0.5;
+}
+
+element-icon {
+    size: 24px;
+    vertical-align: 0.5;
+}

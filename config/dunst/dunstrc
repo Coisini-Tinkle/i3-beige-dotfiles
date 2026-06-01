@@ -1,0 +1,72 @@
+[global]
+    monitor = 0
+    follow = mouse
+    width = (360, 520)
+    height = 168
+    origin = top-center
+    offset = 0x24
+    scale = 0
+    notification_limit = 2
+    progress_bar = true
+    progress_bar_height = 7
+    progress_bar_frame_width = 0
+    progress_bar_min_width = 160
+    progress_bar_max_width = 360
+    progress_bar_corner_radius = 3
+    indicate_hidden = yes
+    transparency = 0
+    separator_height = 0
+    padding = 10
+    horizontal_padding = 14
+    text_icon_padding = 10
+    corner_radius = 10
+    icon_corner_radius = 8
+    frame_width = 0
+    gap_size = 2
+    frame_color = "#1a1a1a"
+    separator_color = frame
+    sort = yes
+    idle_threshold = 120
+    font = JetBrainsMono Nerd Font Mono 11
+    line_height = 2
+    markup = full
+    format = "<b>%s</b>\n<span foreground='#dcd3ca'>%b</span>"
+    alignment = left
+    vertical_alignment = center
+    show_age_threshold = 60
+    ellipsize = middle
+    ignore_newline = no
+    stack_duplicates = true
+    hide_duplicate_count = false
+    show_indicators = yes
+    icon_position = left
+    min_icon_size = 36
+    max_icon_size = 56
+    icon_path = /usr/share/icons/gnome/48x48/status/:/usr/share/icons/gnome/48x48/apps/:/usr/share/icons/gnome/48x48/devices/:/usr/share/icons/Yaru/48x48/status/:/usr/share/icons/Yaru/48x48/apps/
+    sticky_history = yes
+    history_length = 20
+
+[experimental]
+    per_monitor_dpi = false
+
+[urgency_low]
+    background = "#1a1a1a"
+    foreground = "#f5ebe1"
+    timeout = 5
+    highlight = "#ca7081"
+    default_icon = "dialog-information"
+
+[urgency_normal]
+    background = "#1a1a1a"
+    foreground = "#f5ebe1"
+    highlight = "#ca7081"
+    timeout = 8
+    default_icon = "dialog-information"
+
+[urgency_critical]
+    background = "#1a1a1a"
+    foreground = "#f5ebe1"
+    highlight = "#f7768e"
+    frame_color = "#f7768e"
+    timeout = 0
+    default_icon = "dialog-warning"

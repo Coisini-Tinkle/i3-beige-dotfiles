@@ -4,6 +4,12 @@
 
 A compact i3 desktop setup built around a beige monochrome visual style.
 
+## Why Ubuntu
+
+This setup is inspired by the highly customizable desktop experience that is common on Arch-based systems. Arch is excellent for experimentation, but for a daily desktop it can move faster than some workflows need, which increases maintenance cost.
+
+The goal of this repository is to bring a polished i3 desktop experience to Ubuntu instead. Ubuntu tends to provide a steadier base for the everyday applications used in this workflow, while still leaving enough room to customize the window manager, bar, launcher, compositor, terminal, and notification surface.
+
 It includes coordinated configs for:
 
 - `i3`: window manager, workspace routing, display layout scripts

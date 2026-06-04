@@ -61,7 +61,7 @@ Clone the repo and run:
 ./install.sh
 ```
 
-The installer copies configs into `${XDG_CONFIG_HOME:-$HOME/.config}` and backs up existing app configs into a timestamped directory. It does not restart i3 or launch desktop services.
+The installer copies configs and user systemd units into `${XDG_CONFIG_HOME:-$HOME/.config}`, backs up existing app configs into a timestamped directory, and reloads the user systemd manager. It does not restart i3 or launch desktop services.
 
 After installation, reload i3:
 
@@ -148,6 +148,8 @@ Core:
 - `xrandr`
 - `gjs`
 - `imagemagick`
+- `systemd` user manager
+- `udevadm`
 
 Optional but wired into the config:
 
@@ -173,7 +175,13 @@ export ADAPTER=AC
 export PICOM_POWER_PATH=/sys/class/power_supply/AC/online
 ```
 
-Put these in your shell profile or i3 startup environment if your device names differ.
+Put the Polybar overrides in your shell profile or i3 startup environment. For `PICOM_POWER_PATH`, use the systemd user environment, for example:
+
+```sh
+systemctl --user set-environment PICOM_POWER_PATH=/sys/class/power_supply/AC/online
+```
+
+Picom automatically detects the first available power-supply `online` file when no override is set.
 
 ## Generated Local Files
 
@@ -196,8 +204,11 @@ config/
   picom/
   polybar/
   rofi/
+  systemd/user/
 ```
 
 ## Notes
 
 This setup assumes an X11 i3 session. Wayland compositors are out of scope.
+
+Diagnosis note: [Picom lifecycle and Polybar width](doc/2026-06-04/picom-polybar-lifecycle-width-diagnosis.html).

@@ -22,7 +22,7 @@
 
 如果想先理解这些 app 分别负责什么，可以看：
 
-- [i3 配置说明：这些 app 分别做什么](config/i3/README.zh-CN.md)
+- [i3 配置说明：这些 app 分别做什么](./config/i3/README.zh-CN.md)
 
 ## 应用栈
 
@@ -65,7 +65,7 @@
 ./install.sh
 ```
 
-安装脚本会把配置复制到 `${XDG_CONFIG_HOME:-$HOME/.config}`，并把已有配置备份到带时间戳的目录。它不会重启 i3，也不会主动启动桌面服务。
+安装脚本会把配置和用户 systemd 单元复制到 `${XDG_CONFIG_HOME:-$HOME/.config}`，把已有配置备份到带时间戳的目录，并重新加载用户 systemd 管理器。它不会重启 i3，也不会主动启动桌面服务。
 
 安装后手动重载 i3：
 
@@ -152,6 +152,8 @@ i3-msg reload
 - `xrandr`
 - `gjs`
 - `imagemagick`
+- `systemd` 用户管理器
+- `udevadm`
 
 配置中已经接入、但属于可选增强的组件：
 
@@ -177,7 +179,13 @@ export ADAPTER=AC
 export PICOM_POWER_PATH=/sys/class/power_supply/AC/online
 ```
 
-如果你的设备名称不同，可以把这些变量放到 shell profile 或 i3 启动环境里。
+Polybar 相关变量可以放到 shell profile 或 i3 启动环境里。`PICOM_POWER_PATH` 应写入 systemd 用户环境，例如：
+
+```sh
+systemctl --user set-environment PICOM_POWER_PATH=/sys/class/power_supply/AC/online
+```
+
+未设置覆盖值时，Picom 会自动寻找第一个可用的电源 `online` 文件。
 
 ## 本地生成文件
 
@@ -200,8 +208,11 @@ config/
   picom/
   polybar/
   rofi/
+  systemd/user/
 ```
 
 ## 说明
 
 这套配置假设运行在 X11 i3 会话中，不覆盖 Wayland compositor。
+
+诊断记录：[Picom 生命周期与 Polybar 宽度](doc/2026-06-04/picom-polybar-lifecycle-width-diagnosis.html)。

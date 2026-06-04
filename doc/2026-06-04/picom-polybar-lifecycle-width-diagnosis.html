@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Picom 生命周期与 Polybar 尾块诊断</title>
+  <style>
+    body { max-width: 960px; margin: 32px auto; padding: 0 20px; color: #24211e; background: #f7f1ea; font: 16px/1.65 sans-serif; }
+    h1, h2 { color: #171513; }
+    code { background: #e8ded4; padding: 0.1em 0.35em; border-radius: 4px; }
+    table { width: 100%; border-collapse: collapse; margin: 1em 0; background: #fffaf5; }
+    th, td { border: 1px solid #cfc3b8; padding: 8px 10px; text-align: left; vertical-align: top; }
+    .ok { color: #246b45; font-weight: 700; }
+  </style>
+</head>
+<body>
+<h1>Picom 生命周期与 Polybar 尾块诊断</h1>
+<p><strong>日期：</strong>2026-06-04</p>
+<p><strong>主题：</strong>修复 Picom 未持续运行、Polybar 右侧黑色/浅色尾块，并保留 tray 与工作区避让。</p>
+
+<h2>背景与问题</h2>
+<p>基线配置使用 <code>width=98%</code>、<code>offset-x=1%</code> 和 <code>override-redirect=false</code>。i3 会把 Polybar 作为 dock 管理在全屏宽容器内，因此 Polybar 请求宽度与 dock 实际宽度之间存在尾部差异区域。Picom 未运行时该区域显示为黑色；Picom 恢复后则显示为壁纸浅色。</p>
+
+<h2>假设</h2>
+<ol>
+  <li>尾块来自 Polybar 与 i3 dock 容器的宽度不一致，而不是 tray 模块。</li>
+  <li>Picom 应由进程监管器负责异常恢复，电源变化应使用阻塞事件源，不应使用周期轮询看门狗。</li>
+</ol>
+
+<h2>实验设置与关键参数</h2>
+<table>
+  <thead><tr><th>变量</th><th>基线</th><th>实验/最终值</th><th>目的</th></tr></thead>
+  <tbody>
+    <tr><td>Polybar 宽度</td><td><code>98%</code></td><td><code>100%</code></td><td>匹配 i3 dock 容器</td></tr>
+    <tr><td>Polybar 横向偏移</td><td><code>1%</code></td><td><code>0</code></td><td>消除尾部差异区域</td></tr>
+    <tr><td><code>override-redirect</code></td><td><code>false</code></td><td><code>false</code></td><td>保留工作区避让与 tray 稳定性</td></tr>
+    <tr><td>Picom 监管</td><td>启动脚本自行管理</td><td><code>picom.service</code></td><td>异常退出后自动恢复</td></tr>
+    <tr><td>电源监听</td><td>启动脚本内监听</td><td><code>udevadm monitor</code> 阻塞监听</td><td>避免周期轮询 CPU 唤醒</td></tr>
+  </tbody>
+</table>
+
+<h2>受控对比</h2>
+<table>
+  <thead><tr><th>方案</th><th>观察结果</th><th>结论</th></tr></thead>
+  <tbody>
+    <tr><td>修改 tray 背景</td><td>黑色变浅，但矩形区域仍存在</td><td>不支持 tray 根因假设</td></tr>
+    <tr><td><code>override-redirect=true</code> 且保留 98%</td><td>尾块消失，但工作区不能可靠避让状态栏</td><td>不采用</td></tr>
+    <tr><td>100% 宽度且由 i3 管理 dock</td><td>Polybar 与 dock 宽度一致，尾块消失，tray 保持嵌入</td><td class="ok">最终采用</td></tr>
+    <tr><td>systemd + 阻塞式 udev 监听</td><td>Picom 异常退出可恢复；监听器空闲无周期轮询</td><td class="ok">最终采用</td></tr>
+  </tbody>
+</table>
+
+<h2>可行性检查</h2>
+<table>
+  <thead><tr><th>检查</th><th>方法</th><th>结果</th><th>决策</th></tr></thead>
+  <tbody>
+    <tr><td>配置语法</td><td><code>i3 -C</code>、<code>bash -n</code>、<code>systemd-analyze --user verify</code></td><td>全部通过</td><td class="ok">支持继续</td></tr>
+    <tr><td>双屏几何</td><td><code>xwininfo -root -tree</code></td><td>外屏 1920/1920，内屏 2160/2160</td><td class="ok">支持继续</td></tr>
+    <tr><td>运行状态</td><td>检查 Polybar、Picom、systemd 服务和 tray 子窗口</td><td>主副栏、Picom 和 tray 均正常</td><td class="ok">支持继续</td></tr>
+  </tbody>
+</table>
+
+<h2>结论</h2>
+<p>Polybar 使用左、中、右模块布局时，不能根据内容自动收缩整条栏。对当前 i3 dock 模式，按每块显示器使用 <code>100%</code> 宽度是最稳定的方案。Picom 生命周期由 systemd 用户服务监管，电源变化由阻塞式 udev 事件触发，不需要周期轮询看门狗。</p>
+
+<h2>复现信息</h2>
+<ul>
+  <li><code>config/polybar/config.ini</code></li>
+  <li><code>config/i3/config</code></li>
+  <li><code>config/i3/picom-launcher.sh</code></li>
+  <li><code>config/i3/picom-power-watch.sh</code></li>
+  <li><code>config/systemd/user/picom.service</code></li>
+  <li><code>config/systemd/user/picom-power-watch.service</code></li>
+</ul>
+</body>
+</html>

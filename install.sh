@@ -22,6 +22,7 @@ apps=(
   dunst
   kitty
   gtk-3.0
+  systemd/user
 )
 
 mkdir -p "$config_home"
@@ -56,6 +57,10 @@ fi
 
 find "$config_home/i3" "$config_home/polybar" "$config_home/kitty" \
   -type f -name '*.sh' -exec chmod +x {} +
+
+if command -v systemctl >/dev/null 2>&1; then
+  systemctl --user daemon-reload >/dev/null 2>&1 || true
+fi
 
 echo "Installed configs into $config_home"
 if [[ -d "$backup_root" ]]; then

@@ -1,0 +1,10 @@
+[Unit]
+Description=Picom X11 compositor
+StartLimitIntervalSec=30
+StartLimitBurst=5
+
+[Service]
+Type=simple
+ExecStart=%h/.config/i3/picom-launcher.sh
+Restart=on-failure
+RestartSec=1

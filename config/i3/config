@@ -52,7 +52,7 @@ exec --no-startup-id dex --autostart --environment i3
 exec --no-startup-id xss-lock --transfer-sleep-lock -- bash ~/.config/i3/lock-screen.sh --nofork
 exec --no-startup-id sh -c 'pkill -x fcitx >/dev/null 2>&1 || true; fcitx5 -d -r'
 exec_always --no-startup-id sh -c 'command -v feh >/dev/null && feh --no-fehbg --bg-fill ~/.config/i3/themes/beige/wallpaper.png'
-exec_always --no-startup-id sh -c 'exec bash ~/.config/i3/picom-launcher.sh >/tmp/picom-launcher.log 2>&1'
+exec_always --no-startup-id sh -c 'systemctl --user import-environment DISPLAY XAUTHORITY; systemctl --user start picom.service picom-power-watch.service'
 exec_always --no-startup-id sh -c 'command -v copyq >/dev/null && copyq --start-server'
 exec_always --no-startup-id sh -c 'bash ~/.config/i3/display-hotplug-watch.sh >/tmp/display-hotplug-watch.log 2>&1 &'
 exec_always --no-startup-id sh -c 'bash ~/.config/i3/workspace-routing.sh auto --reload-if-changed >/tmp/workspace-routing.log 2>&1 &'

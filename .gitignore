@@ -9,6 +9,9 @@ config/kitty/current-bg
 *~
 .DS_Store
 
+# AI assistant instructions (personal, not published)
+CLAUDE.md
+
 # Python/cache artifacts
 __pycache__/
 *.pyc

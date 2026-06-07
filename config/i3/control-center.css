@@ -1,0 +1,50 @@
+/* ~/.config/i3/control-center.css — beige_mono 米色 */
+/* 墨 #1a1a1a 米底 #dcd3ca 奶白 #f5ebe1 强调粉 #ca7081 暗前景 #6a6258 */
+
+.cc-window { background-color: transparent; }
+
+.cc-panel {
+  background-color: #f5ebe1;
+  border-radius: 22px;
+  padding: 16px;
+  box-shadow: 0 16px 44px rgba(26,26,26,0.20);
+}
+
+/* 正在播放卡片(深) */
+.np-tile { background-color: #1a1a1a; border-radius: 18px; padding: 14px; }
+.np-title  { color: #f5ebe1; font-weight: 700; font-size: 14px; }
+.np-artist { color: #b3a99c; font-size: 12px; }
+.np-ctl { color: #f5ebe1; font-size: 16px; background: none; border: none; box-shadow: none; padding: 4px; }
+.np-ctl:hover { opacity: 0.7; }
+
+.art { border-radius: 12px; }
+.art-fallback {
+  border-radius: 12px;
+  background-image: linear-gradient(135deg, #ca7081 0%, #e0a3ad 50%, #f5ebe1 100%);
+}
+
+/* 开关磁贴 */
+.tile { background-color: #dcd3ca; border-radius: 18px; padding: 14px; }
+.tile-on { background-color: #ca7081; }
+.tile-title { color: #1a1a1a; font-weight: 700; font-size: 14px; }
+.tile-sub   { color: #6a6258; font-size: 11px; }
+.tile-on .tile-title { color: #f5ebe1; }
+.tile-on .tile-sub   { color: #f5ebe1; }
+.tile-icon    { color: #6a6258; font-size: 18px; }
+.tile-icon-on { color: #f5ebe1; font-size: 18px; }
+
+/* 音量 */
+.spk-btn { background: none; border: none; box-shadow: none; color: #1a1a1a; font-size: 18px; padding: 4px 8px; }
+.spk-btn:hover { opacity: 0.7; }
+.vol-scale trough { min-height: 26px; border-radius: 16px; background-color: #dcd3ca; }
+.vol-scale highlight { min-height: 26px; border-radius: 16px; background-color: #1a1a1a; }
+.vol-scale slider { min-width: 2px; min-height: 2px; background-color: transparent; }
+
+/* 电源排 */
+.pwr-btn {
+  background-color: #dcd3ca; border: none; box-shadow: none;
+  border-radius: 14px; color: #1a1a1a; font-size: 18px; padding: 10px 0;
+}
+.pwr-btn:hover { background-color: #d0c6ba; }
+.pwr-danger { color: #ca7081; }
+.pwr-confirm { background-color: #ca7081; color: #f5ebe1; }

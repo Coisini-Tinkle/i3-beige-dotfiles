@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>时钟交互 + iOS 面板 实现复盘 (2026-06-07)</title>
+<style>
+  body { font-family: -apple-system, "Segoe UI", "Noto Sans CJK SC", sans-serif; line-height: 1.7;
+         color: #1a1a1a; background: #f5ebe1; max-width: 920px; margin: 0 auto; padding: 32px 24px; }
+  h1 { font-size: 26px; border-bottom: 3px solid #1a1a1a; padding-bottom: 10px; }
+  h2 { font-size: 20px; margin-top: 34px; color: #1a1a1a; border-left: 5px solid #ca7081; padding-left: 10px; }
+  h3 { font-size: 16px; margin-top: 22px; color: #6a6258; }
+  code { background: #dcd3ca; padding: 1px 6px; border-radius: 4px; font-size: 90%; }
+  pre { background: #1a1a1a; color: #f5ebe1; padding: 12px 14px; border-radius: 8px; overflow-x: auto; font-size: 13px; }
+  table { border-collapse: collapse; width: 100%; margin: 14px 0; background: #fff; }
+  th, td { border: 1px solid #c9bdb0; padding: 8px 10px; text-align: left; vertical-align: top; font-size: 14px; }
+  th { background: #dcd3ca; }
+  .meta { color: #6a6258; font-size: 14px; }
+  .tag { display: inline-block; background: #ca7081; color: #f5ebe1; border-radius: 6px; padding: 1px 8px; font-size: 12px; }
+  .ok { color: #2e7d32; font-weight: 600; }
+  .bad { color: #ca7081; font-weight: 600; }
+  blockquote { border-left: 4px solid #6a6258; margin: 12px 0; padding: 4px 14px; color: #4a463e; background: #efe6db; }
+</style>
+</head>
+<body>
+
+<h1>时钟点击交互 + iOS 风格音乐面板 / 控制中心 —— 实现复盘</h1>
+<p class="meta">日期:2026-06-07 · 主题:beige_mono 米色 · 范围:polybar 时钟左右键交互、gjs 音乐面板、gjs iOS 控制中心、控制中心 rofi 主题迁移</p>
+
+<h2>1. 背景与目标</h2>
+<p>从一个问题起步:"polybar 左边那个 rofi 启动图标怎么实现的"。顺势把 <strong>polybar 正中的时钟模块做成可交互</strong>:
+左键开控制中心、右键开音乐面板。音乐源为 Spotify / 浏览器网页(MPRIS),机器仅有 <code>playerctl</code>,故面板定位为遥控器。
+用户要 iOS 颜值,遂用 gjs+GTK3 自绘。</p>
+
+<h2>2. 交付物</h2>
+<table>
+<tr><th>文件</th><th>作用</th></tr>
+<tr><td><code>~/.config/i3/music-panel.js</code> / <code>.css</code> / <code>music-panel-toggle.sh</code></td><td>右键音乐面板(A/B/C 三皮肤,封面/进度/控件,皮肤循环持久化)</td></tr>
+<tr><td><code>~/.config/i3/control-center.js</code> / <code>control-center.css</code> / <code>control-center-toggle.sh</code></td><td>左键 iOS 控制中心(正在播放卡片 / WiFi+蓝牙磁贴 / 音量滑条 / 电源排+二次确认)</td></tr>
+<tr><td><code>~/.config/rofi/control-center.rasi</code></td><td>旧 rofi 控制中心 —— 从老暗色迁移到 beige(保留作回退)</td></tr>
+<tr><td><code>~/.config/polybar/config.ini</code></td><td><code>[module/date]</code> 的 <code>label</code> 内嵌 <code>%{A1:}</code>/<code>%{A3:}</code> 动作标签</td></tr>
+</table>
+<p>设计/计划文档:<code>docs/superpowers/specs/2026-06-07-*.md</code>、<code>docs/superpowers/plans/2026-06-07-*.md</code>。</p>
+
+<h2>3. 关键问题与根因(踩坑实录)</h2>
+<table>
+<tr><th>#</th><th>现象</th><th>根因</th><th>修法</th></tr>
+<tr>
+  <td>1</td>
+  <td>左键时钟先是切日期格式;移除 alt 后变成<strong>完全没反应</strong></td>
+  <td>polybar 3.7.1 的 <code>internal/date</code> <strong>不认 config 级 <code>click-left</code></strong>。有 <code>date-alt</code> 时它发自己的内层 toggle 动作(遮蔽外层 click);去掉 alt 后 config click 干脆不触发</td>
+  <td>绕开 config,把动作标签直接写进 <code>label</code>:<br><code>%{A1:cmd:}…%{A3:cmd:}…%{A}%{A}</code>。这与那个"能触发的 toggle"同一机制</td>
+</tr>
+<tr>
+  <td>2</td>
+  <td>左键先在<strong>屏幕正中弹一个空白悬浮窗</strong>,再跳到时钟下</td>
+  <td>启动顺序是 <code>show_all()</code> → 定位 → 填内容:窗口先以 WM 默认位置(i3 居中)映射、且内容未填</td>
+  <td>改为<strong>先 <code>refresh()</code> 填内容 + <code>get_preferred_size</code> 计算并 <code>move()</code> 定位,再 <code>show_all()</code></strong></td>
+</tr>
+<tr>
+  <td>3</td>
+  <td>音乐面板 🔁 循环键永远只切到 None</td>
+  <td>串联 <code>sed -e s/None/Track/ -e s/Track/Playlist/ -e s/Playlist/None/</code> 会<strong>级联</strong>,任何输入最终都变 None</td>
+  <td>点击时读当前 loop,在 JS 里算下一态再 set;不要用链式 sed 推进状态</td>
+</tr>
+<tr>
+  <td>4</td>
+  <td>控制中心"有点丑",与桌面割裂</td>
+  <td><code>control-center.rasi</code> 在 5-31 切米色时<strong>漏迁移</strong>,仍停在老水墨暗色/金黄</td>
+  <td>按 beige 色板重写,对齐主启动器 <code>config.rasi</code> 风格</td>
+</tr>
+<tr>
+  <td>5</td>
+  <td>验证 toggle 时 <code>pgrep</code> 报"还在",实则已关</td>
+  <td><code>pgrep -f "…music-panel.js"</code> 把<strong>测试命令自身的 zsh 包装行</strong>(含该字符串)也匹配了 —— 自我匹配</td>
+  <td>验证逻辑写进独立脚本文件,改用 <code>/proc/*/cmdline</code> 扫描计数</td>
+</tr>
+</table>
+
+<h2>4. 经验教训</h2>
+<ol>
+<li><strong>不要假设 polybar 内置模块支持 config 级 click。</strong> <code>internal/date</code> 在 3.7.1 不认 <code>click-left/right</code>;通用做法是 <code>custom/*</code> 模块,或在 <code>label</code>/<code>format</code> 里手写 <code>%{A}</code> 动作标签。判定"点击有没有触发"用<strong>不可能因环境失败的命令</strong>(如 <code>touch</code>)做埋点,一次点击即可证伪。</li>
+<li><strong>gjs+GTK3 是这台机器上做 iOS 风桌面组件的正解,不是 eww。</strong> 机器无 rust/eww 且 eww 需现编;gjs(灵动岛已在用)+ GTK3/GdkPixbuf 视觉能力同级、<span class="ok">零新依赖</span>。复用既有技术栈让第二个 gjs 程序(控制中心)<span class="ok">一次跑通、零 API 修正</span>。</li>
+<li><strong>GTK 弹窗要"先填内容+先定位,再 show",否则会有居中空白闪框。</strong></li>
+<li><strong>状态机别用链式 <code>sed</code> 推进</strong>(会级联);在代码里读当前态算下一态。</li>
+<li><strong>"改配色各组件要同步"是真会被违反的</strong>(rasi 漏迁移)。新增/改主题时应对照组件清单逐一核对。</li>
+<li><strong>进程开关用精确特征 <code>pgrep -f "gjs .*&lt;name&gt;.js"</code></strong>,避免误杀灵动岛 <code>notification-daemon.js</code> 或其它 gjs;验证时警惕 pgrep 自我匹配。</li>
+<li><strong>子-agent 驱动开发对"代码已在计划里写全"的机械任务很顺</strong>,但<strong>控制器侧的代码审查仍是关键质量闸</strong> —— 真正的逻辑 bug(#3 循环键)是审查时抓到的,不是冒烟测试。</li>
+</ol>
+
+<h2>5. 可复现 / 验证方式</h2>
+<table>
+<tr><th>对象</th><th>命令</th><th>判据</th></tr>
+<tr><td>CSS 解析</td><td><code>gjs -c "…CssProvider().load_from_path(…)…"</code></td><td>打印 <code>CSS OK</code>,无硬解析错</td></tr>
+<tr><td>gjs 启动冒烟</td><td>后台 <code>gjs …js</code> + <code>sleep 3</code> + grep <code>JS ERROR</code></td><td>进程存活、log 无致命错误</td></tr>
+<tr><td>toggle 开关</td><td>独立脚本 <code>/proc/*/cmdline</code> 计数</td><td>0 → 1 → 0,灵动岛仍在</td></tr>
+<tr><td>polybar 点击触发</td><td><code>label</code> 内 <code>%{A1:touch /tmp/x:}</code> 埋点</td><td>点击后标记文件出现</td></tr>
+</table>
+<p>回退锚点:<code>config.ini.pre-cc-bak</code>、<code>control-center.rasi.ink-bak</code>;旧 rofi 控制中心脚本保留。</p>
+
+<h2>6. 后续待办</h2>
+<ul>
+<li><span class="tag">待办</span> 音乐面板沿用同样的"先填+先定位再 show"修复闪框(同 #2,本轮未打)。</li>
+<li><span class="tag">待办</span> 封面同步 <code>curl</code> 下载会在切歌瞬间卡顿(最多 5s),可改异步。</li>
+<li><span class="tag">可选</span> 控制中心亮度滑条(本期 YAGNI 未做)。</li>
+<li><span class="tag">已做</span> 发布仓库同步 <code>~/i3-beige-dotfiles</code>(见本轮提交)。</li>
+</ul>
+
+<h2>7. 结论</h2>
+<p>时钟左右键交互、两个 gjs 面板、控制中心主题迁移均已落地并通过自动验证(语法/启动/进程)。
+两个根因性问题(polybar internal/date 不认 click、GTK 居中空白闪框)已定位并修复;一个逻辑 bug(循环键级联)在审查中拦截。
+<strong>仍需用户在 :1 上做交互/视觉确认</strong>(磁贴变色、封面、定位、二次确认等只有人能看)。</p>
+
+</body>
+</html>

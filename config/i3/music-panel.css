@@ -1,0 +1,62 @@
+/* ~/.config/i3/music-panel.css  — beige_mono 米色主题 */
+/* 调色板:墨 #1a1a1a 米底 #dcd3ca 奶白 #f5ebe1 强调粉 #ca7081 暗前景 #6a6258 */
+
+.music-window { background-color: transparent; }
+
+.card {
+  border-radius: 26px;
+  padding: 18px;
+  box-shadow: 0 14px 40px rgba(26,26,26,0.18);
+}
+
+.art { border-radius: 16px; }
+.art-fallback {
+  border-radius: 16px;
+  background-image: linear-gradient(135deg, #ca7081 0%, #e0a3ad 45%, #f5ebe1 100%);
+}
+
+.title  { font-weight: 700; }
+.artist { font-size: 12px; }
+
+.scrub trough { min-height: 5px; border-radius: 3px; background-color: #c9bdb0; }
+.scrub highlight { min-height: 5px; border-radius: 3px; background-color: #1a1a1a; }
+.scrub slider {
+  min-width: 12px; min-height: 12px; border-radius: 50%;
+  background-color: #1a1a1a; margin: -5px;
+}
+.time { font-size: 11px; color: #6a6258; }
+
+.ctl-btn {
+  background: none; border: none; box-shadow: none; padding: 6px;
+  color: #1a1a1a; font-size: 18px;
+}
+.ctl-btn:hover { opacity: 0.7; }
+.ctl-play {
+  border-radius: 50%; background-color: #1a1a1a; color: #f5ebe1;
+  min-width: 48px; min-height: 48px; font-size: 20px;
+}
+.skin-btn {
+  background: none; border: none; box-shadow: none;
+  color: #6a6258; font-size: 13px; padding: 2px 6px;
+}
+.skin-btn:hover { color: #ca7081; }
+
+/* ---------- A 锁屏大卡片(亮) ---------- */
+.skin-a { background-color: #f5ebe1; }
+.skin-a .title  { color: #1a1a1a; font-size: 19px; }
+.skin-a .artist { color: #6a6258; }
+
+/* ---------- B 控制中心磁贴(亮) ---------- */
+.skin-b { background-color: #f5ebe1; }
+.skin-b .title  { color: #1a1a1a; font-size: 16px; }
+.skin-b .artist { color: #6a6258; }
+
+/* ---------- C 灵动岛展开(深) ---------- */
+.skin-c { background-color: #1a1a1a; }
+.skin-c .title  { color: #f5ebe1; font-size: 15px; }
+.skin-c .artist { color: #b3a99c; }
+.skin-c .ctl-btn { color: #f5ebe1; }
+.skin-c .ctl-play { background-color: #ca7081; color: #1a1a1a; }
+.skin-c .scrub highlight { background-color: #ca7081; }
+.skin-c .skin-btn { color: #b3a99c; }
+.skin-c .time { color: #b3a99c; }

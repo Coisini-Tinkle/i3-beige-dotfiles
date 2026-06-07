@@ -5,25 +5,27 @@ configuration {
 }
 
 * {
-    bg:         #1e1e1a;
-    bg-card:    #2a2820;
-    bg-hover:   #3a362a;
-    fg:         #e8e0c8;
-    fg-dim:     #a09880;
-    accent:     #f0d890;
-    red:        #e67e80;
-    border-c:   #4a4430;
+    bg:         #f5ebe1;   /* 奶白 — 面板底 */
+    bg-card:    #dcd3ca;   /* 米色 — 卡片 */
+    bg-sel:     #1a1a1a;   /* 墨 — 选中底 */
+    fg:         #1a1a1a;   /* 墨 — 主文字 */
+    fg-dim:     #6a6258;   /* 暗前景 — 次要 */
+    fg-sel:     #f5ebe1;   /* 选中文字(奶白) */
+    accent:     #ca7081;   /* 强调粉 */
+    red:        #ca7081;   /* 紧急 = 强调粉 */
+    border-c:   #1a1a1a;   /* 墨边/分隔 */
 
     background-color:   @bg;
     text-color:         @fg;
-    separatorcolor:     @border-c;
+    separatorcolor:     @fg-dim;
 }
 
 window {
     width: 680px;
     transparency: "real";
-    border: 0px;
-    border-radius: 0px 0px 14px 14px;
+    border: 3px;
+    border-color: @border-c;
+    border-radius: 0px 0px 16px 16px;
     background-color: @bg;
     location: north;
     y-offset: 0px;
@@ -59,26 +61,26 @@ header-right {
 
 sep {
     enabled: true;
-    height: 1px;
+    height: 2px;
     margin: 0px 16px 8px 16px;
     background-color: @border-c;
 }
 
 listview {
-    lines: 5;
+    lines: 6;
     columns: 2;
     fixed-height: false;
     border: 0px;
     scrollbar: false;
-    spacing: 4px;
-    padding: 4px 16px 14px 16px;
+    spacing: 6px;
+    padding: 4px 16px 16px 16px;
     background-color: transparent;
 }
 
 element {
     padding: 10px 14px;
     border: 0px;
-    border-radius: 8px;
+    border-radius: 10px;
     background-color: @bg-card;
     text-color: @fg;
     cursor: pointer;
@@ -90,12 +92,12 @@ element normal.urgent {
 }
 
 element selected.normal {
-    background-color: @bg-hover;
-    text-color: @accent;
+    background-color: @bg-sel;
+    text-color: @fg-sel;
 }
 
 element alternate.normal {
-    background-color: @bg;
+    background-color: @bg-card;
 }
 
 element-text {

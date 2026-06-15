@@ -51,6 +51,7 @@ include ~/.config/i3/workspace-output-routing.conf
 exec --no-startup-id dex --autostart --environment i3
 exec --no-startup-id xss-lock --transfer-sleep-lock -- bash ~/.config/i3/lock-screen.sh --nofork
 exec --no-startup-id sh -c 'pkill -x fcitx >/dev/null 2>&1 || true; fcitx5 -d -r'
+exec --no-startup-id /usr/bin/flameshot
 exec_always --no-startup-id sh -c 'command -v feh >/dev/null && feh --no-fehbg --bg-fill ~/.config/i3/themes/beige/wallpaper.png'
 exec_always --no-startup-id sh -c 'systemctl --user import-environment DISPLAY XAUTHORITY; systemctl --user start picom.service picom-power-watch.service'
 exec_always --no-startup-id sh -c 'command -v copyq >/dev/null && copyq --start-server'
@@ -71,10 +72,10 @@ bindsym $mod+l exec --no-startup-id bash ~/.config/i3/lock-screen.sh
 bindsym $mod+q kill
 bindsym $mod+Escape exec --no-startup-id bash ~/.config/i3/rofi-power-menu.sh
 bindsym Ctrl+grave exec --no-startup-id sh -c 'command -v copyq >/dev/null && copyq toggle'
-bindsym $mod+Shift+s exec --no-startup-id flameshot gui
-bindsym Print exec --no-startup-id flameshot gui
-bindsym Shift+Print exec --no-startup-id flameshot full
-bindsym Ctrl+Print exec --no-startup-id flameshot screen -r
+bindcode --release $mod+Shift+39 exec --no-startup-id /usr/bin/flameshot gui
+bindsym Print exec --no-startup-id /usr/bin/flameshot gui
+bindsym Shift+Print exec --no-startup-id /usr/bin/flameshot full
+bindsym Ctrl+Print exec --no-startup-id /usr/bin/flameshot screen -r
 
 bindsym XF86AudioMute        exec --no-startup-id amixer sset Master toggle
 bindsym XF86AudioLowerVolume exec --no-startup-id amixer sset Master 5%-

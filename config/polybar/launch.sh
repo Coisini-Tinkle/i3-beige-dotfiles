@@ -2,11 +2,17 @@
 
 exec 9>/tmp/polybar-launch.lock
 if command -v flock >/dev/null 2>&1; then
-  flock -x 9
+  # -w 5: serialize concurrent launches, but never block forever. If a previous
+  # launch.sh wedged while holding the lock (seen 2026-06-17: a hung instance held
+  # it 14 min and blocked every restart), give up after 5s and proceed best-effort.
+  # The pkill -x polybar below resets state, so double-spawn is not a concern.
+  if ! flock -w 5 9; then
+    echo "polybar-launch: lock busy >5s, assuming previous launch is stuck; proceeding without lock" >&2
+  fi
 fi
 
-polybar-msg cmd quit >/dev/null 2>&1 || true
 pkill -x polybar 2>/dev/null || true
+ps -eo pid,args | awk '/[i]3-workspaces\.sh/ {print $1}' | xargs -r kill 2>/dev/null || true
 
 if ! command -v polybar >/dev/null 2>&1; then
   exit 0
@@ -21,6 +27,8 @@ if pgrep -x polybar >/dev/null 2>&1; then
   pkill -KILL -x polybar 2>/dev/null || true
   sleep 0.2
 fi
+
+SKIP_LIVE_POLYBAR=0 "$HOME/.config/i3/theme-switcher.sh" render-polybar >/dev/null 2>&1 || true
 
 primary="$(xrandr --listactivemonitors | awk 'NR > 1 && $2 ~ /\*/ { print $NF; exit }')"
 others=()

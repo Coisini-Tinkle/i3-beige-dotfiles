@@ -3,6 +3,13 @@ config/i3/workspace-output-routing.conf
 config/i3/display-layouts.conf
 config/kitty/current-bg
 
+# Theme engine: runtime state + per-theme generated artifacts
+# (theme-switcher.sh regenerates these from <theme>/theme.conf on apply)
+config/i3/.current-theme
+config/i3/themes/current/
+config/i3/themes/*/i3-colors.conf
+config/i3/themes/*/kitty.conf
+
 # Local backups and editor state
 *.bak
 *.tmp

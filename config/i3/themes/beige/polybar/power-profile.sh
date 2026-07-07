@@ -4,7 +4,6 @@ export DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$(id -u)/bus"
 
 PROFILES="performance balanced power-saver"
 ICONS="󰓎 󰾐 󰢠"
-LABELS="性能 均衡 省电"
 COLORS="#e67e80 #dbbc7f #7fbbb3"
 
 get_current() {
@@ -62,14 +61,14 @@ print_status() {
         ci=$((ci + 1))
     done
     i=0
-    label=""
-    for l in $LABELS; do
+    for p in $PROFILES; do
         if [ "$i" = "$idx" ]; then
-            label=$l
+            short=$(echo "$p" | sed 's/power-saver/saver/')
+            echo "%{F#1a1a1a}${icon}%{F-}"
+            return
         fi
         i=$((i + 1))
     done
-    echo "%{F#1a1a1a}${icon} ${label}%{F-}"
 }
 
 case "$1" in

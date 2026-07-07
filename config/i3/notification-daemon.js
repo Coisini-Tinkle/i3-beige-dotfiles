@@ -2,14 +2,13 @@
 
 const {GLib, Gio} = imports.gi;
 
-const PANEL_PATH = GLib.build_filenamev([
-  GLib.get_home_dir(),
-  '.config',
-  'i3',
-  'notification-drop-panel.js',
-]);
+const PANEL_PATH = GLib.build_filenamev([GLib.get_home_dir(), '.config', 'i3', 'notification-drop-panel.js']);
 const DBUS_NAME = 'org.freedesktop.Notifications';
 const DBUS_PATH = '/org/freedesktop/Notifications';
+const MAX_QUEUE = 3;
+const DEFAULT_HOLD = [1800, 3000, 8000];
+const MIN_HOLD = 800;
+const MAX_HOLD = 15000;
 
 const IFACE_XML = `
 <node>
@@ -50,26 +49,70 @@ const IFACE_XML = `
 
 let nextId = 1;
 let currentProcess = null;
-let currentId = 0;
-let queued = null;
+let currentNotification = null;
+let currentCloseReason = 1;
+let currentSuppressClose = false;
+let queue = [];
 let bus = null;
+let loop = null;
 
-function showNotification(id, title, body, expireTimeout) {
-  if (currentProcess) {
-    currentProcess.force_exit();
-    currentProcess = null;
+function unpack(value) {
+  return value && typeof value.deep_unpack === 'function' ? value.deep_unpack() : value;
+}
+
+function getUrgency(hints) {
+  if (!hints || !Object.prototype.hasOwnProperty.call(hints, 'urgency')) return 1;
+  const urgency = Number(unpack(hints.urgency));
+  return Math.max(0, Math.min(2, Number.isFinite(urgency) ? urgency : 1));
+}
+
+function getHold(notification) {
+  if (notification.expireTimeout > 0) {
+    return Math.max(MIN_HOLD, Math.min(MAX_HOLD, notification.expireTimeout));
   }
+  return DEFAULT_HOLD[notification.urgency];
+}
 
-  currentId = id;
-  const hold = expireTimeout > 0 ? expireTimeout : 3000;
-  const args = ['gjs', PANEL_PATH, '--title', title, '--body', body, '--hold', String(hold)];
+function makeNotification(id, appName, title, body, expireTimeout, urgency) {
+  return {
+    id,
+    appName: appName || '',
+    title: title || '',
+    body: body || '',
+    expireTimeout,
+    urgency,
+  };
+}
 
-  log('Launching panel: ' + args.join(' '));
+function showNext() {
+  if (currentProcess || queue.length === 0) return;
+  showNotification(queue.shift());
+}
+
+function showNotification(notification) {
+  if (currentProcess) return;
+
+  currentNotification = notification;
+  currentCloseReason = 1;
+  currentSuppressClose = false;
+  const hold = getHold(notification);
+  const args = [
+    'gjs', PANEL_PATH,
+    '--title', notification.title,
+    '--body', notification.body,
+    '--hold', String(hold),
+    '--urgency', String(notification.urgency),
+  ];
+
+  log(`Launching notification ${notification.id} (${notification.appName || 'unknown'}, urgency=${notification.urgency}, hold=${hold})`);
   try {
     currentProcess = Gio.Subprocess.new(args, Gio.SubprocessFlags.NONE);
     log('Panel launched, PID: ' + currentProcess.get_identifier());
   } catch (e) {
     log('Failed to launch panel: ' + e.message);
+    currentNotification = null;
+    emitClosed(notification.id, 4);
+    showNext();
     return;
   }
 
@@ -77,15 +120,60 @@ function showNotification(id, title, body, expireTimeout) {
     try {
       proc.wait_finish(res);
     } catch (e) {}
-    currentProcess = null;
-    emitClosed(currentId, 1);
 
-    if (queued) {
-      const q = queued;
-      queued = null;
-      showNotification(q.id, q.title, q.body, q.expireTimeout);
+    const finished = currentNotification;
+    const closeReason = currentCloseReason;
+    const suppressClose = currentSuppressClose;
+    currentProcess = null;
+    currentNotification = null;
+    currentCloseReason = 1;
+    currentSuppressClose = false;
+
+    if (finished && !suppressClose) {
+      emitClosed(finished.id, closeReason);
     }
+    showNext();
   });
+}
+
+function enqueue(notification) {
+  if (notification.appName) {
+    const sameApp = queue.findIndex(item => item.appName === notification.appName);
+    if (sameApp >= 0) {
+      const replaced = queue[sameApp];
+      queue[sameApp] = notification;
+      emitClosed(replaced.id, 4);
+      log(`Merged queued notification ${replaced.id} into ${notification.id} for ${notification.appName}`);
+      return;
+    }
+  }
+
+  if (queue.length >= MAX_QUEUE) {
+    const dropped = queue.shift();
+    emitClosed(dropped.id, 4);
+    log(`Dropped queued notification ${dropped.id}; queue limit is ${MAX_QUEUE}`);
+  }
+  queue.push(notification);
+  log(`Queued notification ${notification.id}; pending=${queue.length}`);
+}
+
+function replaceNotification(notification) {
+  const queuedIndex = queue.findIndex(item => item.id === notification.id);
+  if (queuedIndex >= 0) {
+    queue[queuedIndex] = notification;
+    log(`Replaced queued notification ${notification.id}`);
+    return true;
+  }
+
+  if (currentNotification && currentNotification.id === notification.id && currentProcess) {
+    queue = queue.filter(item => item.id !== notification.id);
+    queue.unshift(notification);
+    currentSuppressClose = true;
+    currentProcess.force_exit();
+    log(`Replacing active notification ${notification.id}`);
+    return true;
+  }
+  return false;
 }
 
 function emitClosed(id, reason) {
@@ -109,22 +197,36 @@ function handleMethodCall(connection, sender, path, iface, method, paramsV, invo
 
   switch (method) {
     case 'Notify': {
-      const [, , , summary, body, , , expireTimeout] = params;
-      const id = nextId++;
-      if (currentProcess) {
-        queued = {id, title: summary, body: body || '', expireTimeout};
-        if (currentProcess) {
-          currentProcess.force_exit();
-        }
+      const [appName, replacesId, , summary, body, , hints, expireTimeout] = params;
+      const replacementExists = replacesId > 0 && (
+        (currentNotification && currentNotification.id === replacesId) ||
+        queue.some(item => item.id === replacesId)
+      );
+      const id = replacementExists ? replacesId : nextId++;
+      const notification = makeNotification(
+        id, appName, summary, body, expireTimeout, getUrgency(hints)
+      );
+
+      if (replacementExists && replaceNotification(notification)) {
+        // Replacement keeps the original notification ID and queue position.
+      } else if (currentProcess) {
+        enqueue(notification);
       } else {
-        showNotification(id, summary, body || '', expireTimeout);
+        showNotification(notification);
       }
       invocation.return_value(new GLib.Variant('(u)', [id]));
       break;
     }
     case 'CloseNotification': {
       const [id] = params;
-      if (id === currentId && currentProcess) {
+      const queuedIndex = queue.findIndex(item => item.id === id);
+      if (queuedIndex >= 0) {
+        queue.splice(queuedIndex, 1);
+        emitClosed(id, 3);
+      }
+      if (currentNotification && id === currentNotification.id && currentProcess) {
+        currentCloseReason = 3;
+        currentSuppressClose = false;
         currentProcess.force_exit();
       }
       invocation.return_value(null);
@@ -135,7 +237,7 @@ function handleMethodCall(connection, sender, path, iface, method, paramsV, invo
       break;
     case 'GetServerInformation':
       invocation.return_value(new GLib.Variant('(ssss)', [
-        'dynamic-island', 'custom', '1.0', '1.2'
+        'dynamic-island', 'custom', '1.1', '1.2'
       ]));
       break;
     default:
@@ -155,27 +257,16 @@ function main() {
     null
   );
 
-  const loop = GLib.MainLoop.new(null, false);
+  loop = GLib.MainLoop.new(null, false);
 
-  const ownerId = Gio.bus_own_name_on_connection(
+  Gio.bus_own_name_on_connection(
     bus,
     DBUS_NAME,
-    Gio.BusNameOwnerFlags.REPLACE,
+    Gio.BusNameOwnerFlags.REPLACE | Gio.BusNameOwnerFlags.DO_NOT_QUEUE,
     () => log('Bus name acquired'),
     (connection, name) => {
-      log('Lost bus name, retrying in 1s: ' + name);
-      GLib.timeout_add(GLib.PRIORITY_DEFAULT, 1000, () => {
-        Gio.bus_own_name_on_connection(
-          bus,
-          DBUS_NAME,
-          Gio.BusNameOwnerFlags.REPLACE,
-          () => log('Bus name re-acquired'),
-          (conn2, name2) => {
-            log('Lost bus name again: ' + name2);
-          }
-        );
-        return GLib.SOURCE_REMOVE;
-      });
+      log('Unable to own bus name; exiting duplicate daemon: ' + name);
+      loop.quit();
     }
   );
 

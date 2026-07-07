@@ -2,11 +2,17 @@
 
 set -euo pipefail
 
-readonly SOURCE_IMAGE="$HOME/.config/i3/themes/beige/wallpaper.png"
+readonly SOURCE_IMAGE="$HOME/.config/i3/themes/current/wallpaper.png"
 readonly OUTPUT_IMAGE="/tmp/i3-lockscreen.png"
-readonly BACKGROUND_COLOR="#f5ebe1"
-readonly LOCK_RADIUS="${I3LOCK_RADIUS:-1440}"
-readonly LOCK_RING_WIDTH="${I3LOCK_RING_WIDTH:-128}"
+BACKGROUND_COLOR="#f5ebe1"
+LOCK_RADIUS="${I3LOCK_RADIUS:-1440}"
+LOCK_RING_WIDTH="${I3LOCK_RING_WIDTH:-128}"
+
+if [[ -f "$HOME/.config/i3/themes/current/theme.conf" ]]; then
+  # shellcheck source=/dev/null
+  source "$HOME/.config/i3/themes/current/theme.conf"
+  BACKGROUND_COLOR="${LOCK_BG:-${PANEL:-$BACKGROUND_COLOR}}"
+fi
 
 screen_size="$(
   xrandr --query \

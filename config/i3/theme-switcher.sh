@@ -2,14 +2,14 @@
 
 set -euo pipefail
 
-readonly I3_DIR="/home/coisini/.config/i3"
+readonly I3_DIR="$HOME/.config/i3"
 readonly THEMES_DIR="$I3_DIR/themes"
 readonly CURRENT_DIR="$THEMES_DIR/current"
 readonly STATE_FILE="$I3_DIR/.current-theme"
-readonly POLYBAR_CONFIG="/home/coisini/.config/polybar/config.ini"
-readonly POLYBAR_LAUNCH="/home/coisini/.config/polybar/launch.sh"
+readonly POLYBAR_CONFIG="$HOME/.config/polybar/config.ini"
+readonly POLYBAR_LAUNCH="$HOME/.config/polybar/launch.sh"
 readonly TRAY_APPLETS_LAUNCH="$I3_DIR/tray-applets-launch.sh"
-readonly KITTY_CONF="/home/coisini/.config/kitty/kitty.conf"
+readonly KITTY_CONF="$HOME/.config/kitty/kitty.conf"
 SKIP_LIVE_POLYBAR="${SKIP_LIVE_POLYBAR:-1}"
 
 die() {
@@ -294,14 +294,14 @@ render_polybar_config() {
 ensure_kitty_include() {
   [[ -f "$KITTY_CONF" ]] || return 0
 
-  if grep -q '^include /home/coisini/.config/i3/themes/current/kitty.conf$' "$KITTY_CONF"; then
+  if grep -q "^include $HOME/.config/i3/themes/current/kitty.conf\$" "$KITTY_CONF"; then
     return 0
   fi
 
-  if grep -q '^include /home/coisini/.config/i3/themes/beige/kitty-beige.conf$' "$KITTY_CONF"; then
-    sed -i 's|^include /home/coisini/.config/i3/themes/beige/kitty-beige.conf$|include /home/coisini/.config/i3/themes/current/kitty.conf|' "$KITTY_CONF"
+  if grep -q "^include $HOME/.config/i3/themes/beige/kitty-beige.conf\$" "$KITTY_CONF"; then
+    sed -i "s|^include $HOME/.config/i3/themes/beige/kitty-beige.conf\$|include $HOME/.config/i3/themes/current/kitty.conf|" "$KITTY_CONF"
   else
-    printf '\ninclude /home/coisini/.config/i3/themes/current/kitty.conf\n' >> "$KITTY_CONF"
+    printf '\ninclude %s/.config/i3/themes/current/kitty.conf\n' "$HOME" >> "$KITTY_CONF"
   fi
 }
 
@@ -340,7 +340,7 @@ start_tray_clients() {
 
 stop_polybar() {
   pkill -x polybar 2>/dev/null || true
-  pgrep -f '^/bin/sh -c ~/.config/polybar/scripts/i3-workspaces.sh$|^bash /home/coisini/.config/polybar/scripts/i3-workspaces.sh$' \
+  pgrep -f "^/bin/sh -c ~/.config/polybar/scripts/i3-workspaces.sh\$|^bash $HOME/.config/polybar/scripts/i3-workspaces.sh\$" \
     | xargs -r kill 2>/dev/null || true
 }
 

@@ -4,19 +4,12 @@ set -euo pipefail
 readonly CONF_DIR="$HOME/.config/picom"
 readonly FULL_CONF="$CONF_DIR/picom-full.conf"
 readonly LITE_CONF="$CONF_DIR/picom-lite.conf"
-POWER_PATH="${PICOM_POWER_PATH:-}"
+readonly POWER_PATH="/sys/class/power_supply/ADP1/online"
 readonly LOG_FILE="/tmp/picom.log"
 
-if [[ -z "$POWER_PATH" ]]; then
-  for candidate in /sys/class/power_supply/*/online; do
-    [[ -f "$candidate" ]] || continue
-    POWER_PATH="$candidate"
-    break
-  done
-fi
-
-config="$FULL_CONF"
-if [[ -n "$POWER_PATH" && -f "$POWER_PATH" ]] && [[ "$(<"$POWER_PATH")" != "1" ]]; then
+if [[ -f "$POWER_PATH" ]] && [[ "$(<"$POWER_PATH")" == "1" ]]; then
+  config="$FULL_CONF"
+else
   config="$LITE_CONF"
 fi
 

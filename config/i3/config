@@ -24,6 +24,7 @@ gaps outer 4
 smart_gaps on
 for_window [class="^Rofi$"] border pixel 0
 for_window [class="^ToDesk$"] floating enable, border pixel 0, sticky enable
+for_window [class="^ToDesk$" title="^ToDesk$"] move scratchpad
 for_window [class="^copyq$"] floating enable, border pixel 1, move position center, resize set 960 640
 for_window [class="^kitty-float$"] floating enable, border pixel 1, move position center, resize set 960 640
 for_window [class="^kitty-dropdown$"] floating enable, sticky enable, border pixel 1, move position center, resize set 1400 720
@@ -35,6 +36,7 @@ client.unfocused        #c9bfb4 #dcd3ca #6a6258 #c9bfb4 #c9bfb4
 client.urgent           #ca7081 #ca7081 #f5ebe1 #ca7081 #ca7081
 client.placeholder      #dcd3ca #dcd3ca #1a1a1a #dcd3ca #dcd3ca
 client.background       #f5ebe1
+include ~/.config/i3/themes/current/i3-colors.conf
 
 set $ws1 "1:I"
 set $ws2 "2:II"
@@ -52,17 +54,15 @@ exec --no-startup-id dex --autostart --environment i3
 exec --no-startup-id xss-lock --transfer-sleep-lock -- bash ~/.config/i3/lock-screen.sh
 exec --no-startup-id sh -c 'pkill -x fcitx >/dev/null 2>&1 || true; fcitx5 -d -r'
 exec --no-startup-id /usr/bin/flameshot
-exec_always --no-startup-id sh -c 'command -v feh >/dev/null && feh --no-fehbg --bg-fill ~/.config/i3/themes/beige/wallpaper.png'
+exec_always --no-startup-id sh -c 'command -v feh >/dev/null && feh --no-fehbg --bg-fill ~/.config/i3/themes/current/wallpaper.png'
 exec_always --no-startup-id sh -c 'systemctl --user import-environment DISPLAY XAUTHORITY; systemctl --user start picom.service picom-power-watch.service'
 exec_always --no-startup-id sh -c 'command -v copyq >/dev/null && copyq --start-server'
 exec_always --no-startup-id sh -c 'bash ~/.config/i3/display-hotplug-watch.sh >/tmp/display-hotplug-watch.log 2>&1 &'
 exec_always --no-startup-id sh -c 'bash ~/.config/i3/workspace-routing.sh auto --reload-if-changed >/tmp/workspace-routing.log 2>&1 &'
 exec_always --no-startup-id bash ~/.config/polybar/launch.sh
-exec_always --no-startup-id sh -c 'sleep 1; pkill -x nm-applet >/dev/null 2>&1 || true; /usr/bin/dbus-launch nm-applet --sm-disable >/tmp/nm-applet.log 2>&1 &'
-exec_always --no-startup-id sh -c 'sleep 1; pkill -x pasystray >/dev/null 2>&1 || true; pasystray >/tmp/pasystray.log 2>&1 &'
-exec_always --no-startup-id sh -c 'sleep 1; pkill -x blueman-applet >/dev/null 2>&1 || true; blueman-applet >/tmp/blueman-applet.log 2>&1 &'
+exec_always --no-startup-id ~/.config/i3/tray-applets-launch.sh
 exec_always --no-startup-id python3 ~/.config/i3/hide_todesk_overlays.py
-exec_always --no-startup-id sh -c 'pkill -x dunst >/dev/null 2>&1 || true; pkill -f notification-daemon >/dev/null 2>&1 || true; sleep 0.3; setsid gjs ~/.config/i3/notification-daemon.js >/tmp/notification-daemon.log 2>&1'
+exec_always --no-startup-id sh -c 'pkill -x dunst >/dev/null 2>&1 || true'
 
 bindsym $mod+Return exec $terminal
 bindsym $mod+grave exec --no-startup-id bash ~/.config/i3/dropdown-terminal.sh
@@ -171,5 +171,6 @@ bindsym $mod+r mode "resize"
 bindsym $mod+Shift+c reload
 bindsym $mod+Shift+r restart
 bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'Exit i3?' -B 'Yes, exit i3' 'i3-msg exit'"
+bindsym $mod+Ctrl+b exec --no-startup-id bash ~/.config/i3/theme-switcher.sh menu
 
 # bar moved to polybar; see ~/.config/polybar/config.ini

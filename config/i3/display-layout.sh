@@ -168,7 +168,7 @@ apply_workspace_routing() {
 restart_polybar() {
   [[ "$print_only" -eq 1 ]] && return 0
   if command -v feh >/dev/null 2>&1; then
-    feh --no-fehbg --bg-fill ~/.config/i3/themes/beige/wallpaper.png >/tmp/display-layout-wallpaper.log 2>&1 || true
+    feh --no-fehbg --bg-fill $HOME/.config/i3/themes/current/wallpaper.png >/tmp/display-layout-wallpaper.log 2>&1 || true
   fi
 
   [[ -x "$polybar_launcher" ]] || return 0

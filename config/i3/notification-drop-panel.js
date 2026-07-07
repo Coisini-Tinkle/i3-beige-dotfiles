@@ -30,6 +30,7 @@ const DEFAULTS = {
   slideProgress: 0,
   panelWidth: 0,
   widthDuration: 250,
+  urgency: 1,
 };
 
 function parseArgs(argv) {
@@ -93,6 +94,9 @@ function parseArgs(argv) {
         break;
       case '--bottom-radius':
         opts.bottomRadius = Number(next()) || opts.bottomRadius;
+        break;
+      case '--urgency':
+        opts.urgency = Math.max(0, Math.min(2, Number(next()) || 0));
         break;
       case '--min-width':
         opts.minWidth = Number(next()) || opts.minWidth;
@@ -184,6 +188,10 @@ function loadCss() {
       font-size: 10pt;
       margin-top: 4px;
     }
+
+    .drop-urgency-low .drop-title { color: #dcd3ca; }
+    .drop-urgency-low .drop-body { color: #9f978f; }
+    .drop-urgency-critical .drop-title { color: #f29aaa; }
 
     .drop-accent {
       background: #ca7081;
@@ -404,6 +412,8 @@ function buildWindow(opts) {
   });
   bodyBox.set_opacity(0);
   bodyBox.get_style_context().add_class('drop-bodybox');
+  if (opts.urgency === 0) bodyBox.get_style_context().add_class('drop-urgency-low');
+  if (opts.urgency === 2) bodyBox.get_style_context().add_class('drop-urgency-critical');
   overlay.add_overlay(bodyBox);
 
   const title = new Gtk.Label({

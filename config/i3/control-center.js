@@ -23,10 +23,30 @@ function getVolume() {
   return { vol: m ? parseFloat(m[1]) : 0, muted: /MUTED/.test(s) };
 }
 function getWifi() {
-  let on = sh('nmcli radio wifi') === 'enabled';
+  const nmcli = args => sh('env LC_ALL=C nmcli ' + args);
+  let on = nmcli('-t -f WIFI general') === 'enabled';
+  if (!on) return { on: false, connected: false, ssid: '关' };
+
+  let device = '';
+  let rows = nmcli('-t -f DEVICE,TYPE,STATE device status');
+  for (let line of rows.split('\n')) {
+    let [name, type, state] = line.split(':');
+    if (type === 'wifi' && state === 'connected') {
+      device = name;
+      break;
+    }
+  }
+
   let ssid = '';
-  if (on) ssid = sh("sh -c \"nmcli -t -f active,ssid dev wifi 2>/dev/null | grep '^yes' | cut -d: -f2-\"");
-  return { on, ssid: on ? (ssid || '未连接') : '关' };
+  if (device) {
+    ssid = nmcli('-g GENERAL.CONNECTION device show ' + GLib.shell_quote(device));
+    if (ssid === '--') ssid = '';
+  }
+  return {
+    on: true,
+    connected: device !== '',
+    ssid: device ? (ssid || '已连接') : '未连接',
+  };
 }
 function getBt() {
   let s = sh('rfkill list bluetooth');

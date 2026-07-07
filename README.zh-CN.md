@@ -38,7 +38,7 @@
 | `feh` | 设置桌面壁纸 | 必需 |
 | `gjs` | 自定义通知 daemon 和下拉通知面板 | 必需 |
 | `dunst` | 备用/参考通知配置；启动时会被 GJS daemon 替换 | 可选 |
-| `i3lock` | 锁屏渲染 | 必需 |
+| `i3lock` / `i3lock-color` | 锁屏渲染；`i3lock-color` 支持放大圆环指示器 | 必需 |
 | `xss-lock` | 将休眠/睡眠锁屏接入 i3lock | 推荐 |
 | `jq` | 解析 i3 workspace/output JSON，用于路由和 polybar 指示器 | 必需 |
 | `xrandr` | 显示器检测和布局切换 | 必需 |

@@ -19,3 +19,6 @@ __pycache__/
 # Local logs/screenshots
 *.log
 i3-left-layout-check*.png
+
+# Local third-party source checkouts
+i3lock-color/

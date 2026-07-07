@@ -49,7 +49,7 @@ set $ws10 "10:X"
 include ~/.config/i3/workspace-output-routing.conf
 
 exec --no-startup-id dex --autostart --environment i3
-exec --no-startup-id xss-lock --transfer-sleep-lock -- bash ~/.config/i3/lock-screen.sh --nofork
+exec --no-startup-id xss-lock --transfer-sleep-lock -- bash ~/.config/i3/lock-screen.sh
 exec --no-startup-id sh -c 'pkill -x fcitx >/dev/null 2>&1 || true; fcitx5 -d -r'
 exec --no-startup-id /usr/bin/flameshot
 exec_always --no-startup-id sh -c 'command -v feh >/dev/null && feh --no-fehbg --bg-fill ~/.config/i3/themes/beige/wallpaper.png'

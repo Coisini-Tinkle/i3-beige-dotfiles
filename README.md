@@ -34,7 +34,7 @@ These are the apps that work together to create the full desktop effect:
 | `feh` | Wallpaper setter | Yes |
 | `gjs` | Custom notification daemon and drop-down notification panel | Yes |
 | `dunst` | Fallback/reference notification config; replaced at startup by the GJS daemon | Optional |
-| `i3lock` | Lock screen renderer | Yes |
+| `i3lock` / `i3lock-color` | Lock screen renderer; `i3lock-color` enables larger ring indicators | Yes |
 | `xss-lock` | Hooks suspend/sleep locking into i3lock | Recommended |
 | `jq` | Parses i3 workspace/output JSON for routing and polybar indicators | Yes |
 | `xrandr` | Display detection and layout switching | Yes |

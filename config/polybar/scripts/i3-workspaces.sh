@@ -17,6 +17,14 @@ INK="#1a1a1a"
 DIM="#6a6258"
 RED="#ca7081"
 
+if [ -f "$HOME/.config/i3/themes/current/theme.conf" ]; then
+  # shellcheck source=/dev/null
+  . "$HOME/.config/i3/themes/current/theme.conf"
+  INK="${INK:-#1a1a1a}"
+  DIM="${MUTED:-#6a6258}"
+  RED="${RED:-${ACCENT:-#ca7081}}"
+fi
+
 CAP_FONT=5          # %{T5} = font-4 (size=9) caps -> extra-slim capsule
 SYM_FONT=2          # %{T2} = font-1 (size=14) = dots / dash
 
@@ -66,7 +74,7 @@ render() {
     else
       role="external"
     fi
-    act="bash ~/.config/i3/switch-workspace-fixed-output.sh ${role} ${num}"
+    act="bash /home/coisini/.config/i3/switch-workspace-fixed-output.sh ${role} ${num}"
     if [[ "${FOCUSED[$name]:-${FOCUSED_NUM[$num]:-false}}" == "true" ]]; then
       # capsule = left cap + solid block(s) + right cap, all glyph-rendered (no %{B}) so heights align
       out+="%{A1:${act}:}%{T${CAP_FONT}}%{F${INK}}${CAP_L}█%{O-1px}█%{O-1px}█${CAP_R}%{F-}%{T-}%{A} "

@@ -2,15 +2,15 @@
 
 set -euo pipefail
 
-readonly SOURCE_IMAGE="$HOME/.config/i3/themes/current/wallpaper.png"
+readonly SOURCE_IMAGE="/home/coisini/.config/i3/themes/current/wallpaper.png"
 readonly OUTPUT_IMAGE="/tmp/i3-lockscreen.png"
 BACKGROUND_COLOR="#f5ebe1"
-LOCK_RADIUS="${I3LOCK_RADIUS:-1440}"
-LOCK_RING_WIDTH="${I3LOCK_RING_WIDTH:-128}"
+LOCK_RADIUS="${I3LOCK_RADIUS:-120}"
+LOCK_RING_WIDTH="${I3LOCK_RING_WIDTH:-16}"
 
-if [[ -f "$HOME/.config/i3/themes/current/theme.conf" ]]; then
+if [[ -f "/home/coisini/.config/i3/themes/current/theme.conf" ]]; then
   # shellcheck source=/dev/null
-  source "$HOME/.config/i3/themes/current/theme.conf"
+  source "/home/coisini/.config/i3/themes/current/theme.conf"
   BACKGROUND_COLOR="${LOCK_BG:-${PANEL:-$BACKGROUND_COLOR}}"
 fi
 

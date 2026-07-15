@@ -6,6 +6,14 @@ PROFILES="performance balanced power-saver"
 ICONS="󰓎 󰾐 󰢠"
 LABELS="性能 均衡 省电"
 COLORS="#e67e80 #dbbc7f #7fbbb3"
+INK="#1a1a1a"
+
+if [ -f "$HOME/.config/i3/themes/current/theme.conf" ]; then
+    # shellcheck source=/dev/null
+    . "$HOME/.config/i3/themes/current/theme.conf"
+    INK="${INK:-#1a1a1a}"
+    COLORS="${RED:-#e67e80} ${YELLOW:-#dbbc7f} ${CYAN:-#7fbbb3}"
+fi
 
 get_current() {
     powerprofilesctl get
@@ -69,7 +77,7 @@ print_status() {
         fi
         i=$((i + 1))
     done
-    echo "%{F#1a1a1a}${icon} ${label}%{F-}"
+    echo "%{F${INK}}${icon} ${label}%{F-}"
 }
 
 case "$1" in

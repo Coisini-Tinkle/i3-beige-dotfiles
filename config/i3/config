@@ -36,7 +36,7 @@ client.unfocused        #c9bfb4 #dcd3ca #6a6258 #c9bfb4 #c9bfb4
 client.urgent           #ca7081 #ca7081 #f5ebe1 #ca7081 #ca7081
 client.placeholder      #dcd3ca #dcd3ca #1a1a1a #dcd3ca #dcd3ca
 client.background       #f5ebe1
-include ~/.config/i3/themes/current/i3-colors.conf
+include /home/coisini/.config/i3/themes/current/i3-colors.conf
 
 set $ws1 "1:I"
 set $ws2 "2:II"
@@ -48,29 +48,29 @@ set $ws7 "7:VII"
 set $ws8 "8:VIII"
 set $ws9 "9:IX"
 set $ws10 "10:X"
-include ~/.config/i3/workspace-output-routing.conf
+include /home/coisini/.config/i3/workspace-output-routing.conf
 
 exec --no-startup-id dex --autostart --environment i3
-exec --no-startup-id xss-lock --transfer-sleep-lock -- bash ~/.config/i3/lock-screen.sh
+exec --no-startup-id xss-lock --transfer-sleep-lock -- bash /home/coisini/.config/i3/lock-screen.sh
 exec --no-startup-id sh -c 'pkill -x fcitx >/dev/null 2>&1 || true; fcitx5 -d -r'
 exec --no-startup-id /usr/bin/flameshot
-exec_always --no-startup-id sh -c 'command -v feh >/dev/null && feh --no-fehbg --bg-fill ~/.config/i3/themes/current/wallpaper.png'
+exec_always --no-startup-id sh -c 'command -v feh >/dev/null && feh --no-fehbg --bg-fill /home/coisini/.config/i3/themes/current/wallpaper.png'
 exec_always --no-startup-id sh -c 'systemctl --user import-environment DISPLAY XAUTHORITY; systemctl --user start picom.service picom-power-watch.service'
 exec_always --no-startup-id sh -c 'command -v copyq >/dev/null && copyq --start-server'
-exec_always --no-startup-id sh -c 'bash ~/.config/i3/display-hotplug-watch.sh >/tmp/display-hotplug-watch.log 2>&1 &'
-exec_always --no-startup-id sh -c 'bash ~/.config/i3/workspace-routing.sh auto --reload-if-changed >/tmp/workspace-routing.log 2>&1 &'
-exec_always --no-startup-id bash ~/.config/polybar/launch.sh
-exec_always --no-startup-id ~/.config/i3/tray-applets-launch.sh
-exec_always --no-startup-id python3 ~/.config/i3/hide_todesk_overlays.py
+exec_always --no-startup-id sh -c 'bash /home/coisini/.config/i3/display-hotplug-watch.sh >/tmp/display-hotplug-watch.log 2>&1 &'
+exec_always --no-startup-id sh -c 'bash /home/coisini/.config/i3/workspace-routing.sh auto --reload-if-changed >/tmp/workspace-routing.log 2>&1 &'
+exec_always --no-startup-id bash /home/coisini/.config/polybar/launch.sh
+exec_always --no-startup-id /home/coisini/.config/i3/tray-applets-launch.sh
+# exec_always --no-startup-id python3 /home/coisini/.config/i3/hide_todesk_overlays.py  # 2026-07-14: ToDesk removed
 exec_always --no-startup-id sh -c 'pkill -x dunst >/dev/null 2>&1 || true'
 
 bindsym $mod+Return exec $terminal
-bindsym $mod+grave exec --no-startup-id bash ~/.config/i3/dropdown-terminal.sh
+bindsym $mod+grave exec --no-startup-id bash /home/coisini/.config/i3/dropdown-terminal.sh
 bindsym Mod1+space exec --no-startup-id $launcher
 bindsym Ctrl+Mod1+space exec --no-startup-id $launcher
-bindsym $mod+l exec --no-startup-id bash ~/.config/i3/lock-screen.sh
+bindsym $mod+l exec --no-startup-id bash /home/coisini/.config/i3/lock-screen.sh
 bindsym $mod+q kill
-bindsym $mod+Escape exec --no-startup-id bash ~/.config/i3/rofi-power-menu.sh
+bindsym $mod+Escape exec --no-startup-id bash /home/coisini/.config/i3/rofi-power-menu.sh
 bindsym Ctrl+grave exec --no-startup-id sh -c 'command -v copyq >/dev/null && copyq toggle'
 bindcode --release $mod+Shift+39 exec --no-startup-id /usr/bin/flameshot gui
 bindsym Print exec --no-startup-id /usr/bin/flameshot gui
@@ -110,27 +110,27 @@ bindsym $mod+a focus parent
 bindsym $mod+minus scratchpad show
 bindsym $mod+Shift+minus move scratchpad
 
-bindsym $mod+1 exec --no-startup-id bash ~/.config/i3/switch-workspace-fixed-output.sh external 1
-bindsym $mod+2 exec --no-startup-id bash ~/.config/i3/switch-workspace-fixed-output.sh external 2
-bindsym $mod+3 exec --no-startup-id bash ~/.config/i3/switch-workspace-fixed-output.sh external 3
-bindsym $mod+4 exec --no-startup-id bash ~/.config/i3/switch-workspace-fixed-output.sh external 4
-bindsym $mod+5 exec --no-startup-id bash ~/.config/i3/switch-workspace-fixed-output.sh external 5
-bindsym $mod+6 exec --no-startup-id bash ~/.config/i3/switch-workspace-fixed-output.sh internal 6
-bindsym $mod+7 exec --no-startup-id bash ~/.config/i3/switch-workspace-fixed-output.sh internal 7
-bindsym $mod+8 exec --no-startup-id bash ~/.config/i3/switch-workspace-fixed-output.sh internal 8
-bindsym $mod+9 exec --no-startup-id bash ~/.config/i3/switch-workspace-fixed-output.sh internal 9
-bindsym $mod+0 exec --no-startup-id bash ~/.config/i3/switch-workspace-fixed-output.sh internal 10
+bindsym $mod+1 exec --no-startup-id bash /home/coisini/.config/i3/switch-workspace-fixed-output.sh external 1
+bindsym $mod+2 exec --no-startup-id bash /home/coisini/.config/i3/switch-workspace-fixed-output.sh external 2
+bindsym $mod+3 exec --no-startup-id bash /home/coisini/.config/i3/switch-workspace-fixed-output.sh external 3
+bindsym $mod+4 exec --no-startup-id bash /home/coisini/.config/i3/switch-workspace-fixed-output.sh external 4
+bindsym $mod+5 exec --no-startup-id bash /home/coisini/.config/i3/switch-workspace-fixed-output.sh external 5
+bindsym $mod+6 exec --no-startup-id bash /home/coisini/.config/i3/switch-workspace-fixed-output.sh internal 6
+bindsym $mod+7 exec --no-startup-id bash /home/coisini/.config/i3/switch-workspace-fixed-output.sh internal 7
+bindsym $mod+8 exec --no-startup-id bash /home/coisini/.config/i3/switch-workspace-fixed-output.sh internal 8
+bindsym $mod+9 exec --no-startup-id bash /home/coisini/.config/i3/switch-workspace-fixed-output.sh internal 9
+bindsym $mod+0 exec --no-startup-id bash /home/coisini/.config/i3/switch-workspace-fixed-output.sh internal 10
 
-bindsym Ctrl+Mod1+1 exec --no-startup-id bash ~/.config/i3/switch-workspace-fixed-output.sh external 1
-bindsym Ctrl+Mod1+2 exec --no-startup-id bash ~/.config/i3/switch-workspace-fixed-output.sh external 2
-bindsym Ctrl+Mod1+3 exec --no-startup-id bash ~/.config/i3/switch-workspace-fixed-output.sh external 3
-bindsym Ctrl+Mod1+4 exec --no-startup-id bash ~/.config/i3/switch-workspace-fixed-output.sh external 4
-bindsym Ctrl+Mod1+5 exec --no-startup-id bash ~/.config/i3/switch-workspace-fixed-output.sh external 5
-bindsym Ctrl+Mod1+6 exec --no-startup-id bash ~/.config/i3/switch-workspace-fixed-output.sh internal 6
-bindsym Ctrl+Mod1+7 exec --no-startup-id bash ~/.config/i3/switch-workspace-fixed-output.sh internal 7
-bindsym Ctrl+Mod1+8 exec --no-startup-id bash ~/.config/i3/switch-workspace-fixed-output.sh internal 8
-bindsym Ctrl+Mod1+9 exec --no-startup-id bash ~/.config/i3/switch-workspace-fixed-output.sh internal 9
-bindsym Ctrl+Mod1+0 exec --no-startup-id bash ~/.config/i3/switch-workspace-fixed-output.sh internal 10
+bindsym Ctrl+Mod1+1 exec --no-startup-id bash /home/coisini/.config/i3/switch-workspace-fixed-output.sh external 1
+bindsym Ctrl+Mod1+2 exec --no-startup-id bash /home/coisini/.config/i3/switch-workspace-fixed-output.sh external 2
+bindsym Ctrl+Mod1+3 exec --no-startup-id bash /home/coisini/.config/i3/switch-workspace-fixed-output.sh external 3
+bindsym Ctrl+Mod1+4 exec --no-startup-id bash /home/coisini/.config/i3/switch-workspace-fixed-output.sh external 4
+bindsym Ctrl+Mod1+5 exec --no-startup-id bash /home/coisini/.config/i3/switch-workspace-fixed-output.sh external 5
+bindsym Ctrl+Mod1+6 exec --no-startup-id bash /home/coisini/.config/i3/switch-workspace-fixed-output.sh internal 6
+bindsym Ctrl+Mod1+7 exec --no-startup-id bash /home/coisini/.config/i3/switch-workspace-fixed-output.sh internal 7
+bindsym Ctrl+Mod1+8 exec --no-startup-id bash /home/coisini/.config/i3/switch-workspace-fixed-output.sh internal 8
+bindsym Ctrl+Mod1+9 exec --no-startup-id bash /home/coisini/.config/i3/switch-workspace-fixed-output.sh internal 9
+bindsym Ctrl+Mod1+0 exec --no-startup-id bash /home/coisini/.config/i3/switch-workspace-fixed-output.sh internal 10
 
 
 bindsym $mod+Shift+1 move container to workspace number $ws1
@@ -171,6 +171,6 @@ bindsym $mod+r mode "resize"
 bindsym $mod+Shift+c reload
 bindsym $mod+Shift+r restart
 bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'Exit i3?' -B 'Yes, exit i3' 'i3-msg exit'"
-bindsym $mod+Ctrl+b exec --no-startup-id bash ~/.config/i3/theme-switcher.sh menu
+bindsym $mod+Ctrl+b exec --no-startup-id bash /home/coisini/.config/i3/theme-switcher.sh menu
 
 # bar moved to polybar; see ~/.config/polybar/config.ini

@@ -161,15 +161,58 @@ Examples are included as `*.example`. On first install, the script creates them 
 
 ```text
 config/
-  dunst/
-  gtk-3.0/
-  i3/
-  kitty/
-  picom/
-  polybar/
-  rofi/
-  systemd/user/
+├── i3/
+│   ├── config                  ← main i3 config
+│   ├── theme-switcher.sh       ← theme engine
+│   └── themes/
+│       ├── beige/              ← "Beige Mono" theme
+│       │   ├── theme.conf      ← color palette (the only required file)
+│       │   ├── wallpaper.png   ← theme wallpaper
+│       │   └── wallpaper2.png  ← shared wallpaper (used by other themes)
+│       ├── wallpaper2/         ← "Ink Portrait" theme
+│       │   ├── theme.conf
+│       │   └── wallpaper.png → ../beige/wallpaper2.png
+│       ├── current/            ← runtime output (gitignored)
+│       │   ├── i3-colors.conf  ← generated: i3 client colors
+│       │   ├── kitty.conf      ← generated: kitty terminal colors
+│       │   ├── theme.conf      ← copy of active theme.conf
+│       │   └── wallpaper.png   ← copy of active wallpaper
+│       └── _refs/              ← color reference for other apps (manual)
+│           ├── polybar/
+│           ├── btop/
+│           ├── cava/
+│           └── fastfetch/
+├── polybar/
+├── kitty/
+├── picom/
+├── rofi/
+├── dunst/
+├── gtk-3.0/
+└── systemd/user/
 ```
+
+### How themes work
+
+A theme is just a color palette (`theme.conf`) + a wallpaper image:
+
+```sh
+# theme.conf example
+THEME_LABEL="Beige Mono"
+BAR_BG="#dcd3ca"
+INK="#1a1a1a"
+ACCENT="#ca7081"
+# ... ~20 color variables
+```
+
+`theme-switcher.sh apply <theme>` reads the palette and generates:
+- `i3-colors.conf` — i3 window border / title bar colors
+- `kitty.conf` — terminal background, foreground, cursor colors
+- polybar color block — inline replacement in `config/polybar/config.ini`
+- CSS skins for control center / music panel
+
+All generated artifacts land in `themes/current/`, which is **gitignored** — it's rebuilt from `theme.conf` on every theme switch. i3 and kitty include from `current/`, so switching themes is instant.
+
+Available themes: `beige` (Beige Mono, warm pink accent) and `wallpaper2` (Ink Portrait, purple accent). Switch with `theme-switcher.sh apply <name>` or `theme-switcher.sh menu` (rofi picker).
 
 ## Notes
 

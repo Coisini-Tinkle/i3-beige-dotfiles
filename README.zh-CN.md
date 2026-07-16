@@ -165,15 +165,58 @@ systemctl --user set-environment PICOM_POWER_PATH=/sys/class/power_supply/AC/onl
 
 ```text
 config/
-  dunst/
-  gtk-3.0/
-  i3/
-  kitty/
-  picom/
-  polybar/
-  rofi/
-  systemd/user/
+├── i3/
+│   ├── config                  ← i3 主配置
+│   ├── theme-switcher.sh       ← 主题引擎
+│   └── themes/
+│       ├── beige/              ← "Beige Mono" 主题
+│       │   ├── theme.conf      ← 色板（唯一必需的文件）
+│       │   ├── wallpaper.png   ← 主题壁纸
+│       │   └── wallpaper2.png  ← 共享壁纸（其他主题引用）
+│       ├── wallpaper2/         ← "Ink Portrait" 主题
+│       │   ├── theme.conf
+│       │   └── wallpaper.png → ../beige/wallpaper2.png
+│       ├── current/            ← 运行时生成（gitignored）
+│       │   ├── i3-colors.conf  ← 生成：i3 窗口配色
+│       │   ├── kitty.conf      ← 生成：kitty 终端配色
+│       │   ├── theme.conf      ← 当前主题色板副本
+│       │   └── wallpaper.png   ← 当前壁纸副本
+│       └── _refs/              ← 其他 app 的配色参考（手动）
+│           ├── polybar/
+│           ├── btop/
+│           ├── cava/
+│           └── fastfetch/
+├── polybar/
+├── kitty/
+├── picom/
+├── rofi/
+├── dunst/
+├── gtk-3.0/
+└── systemd/user/
 ```
+
+### 主题系统原理
+
+一个主题就是一个色板文件（`theme.conf`）+ 一张壁纸：
+
+```sh
+# theme.conf 示例
+THEME_LABEL="Beige Mono"
+BAR_BG="#dcd3ca"
+INK="#1a1a1a"
+ACCENT="#ca7081"
+# ... 约 20 个颜色变量
+```
+
+`theme-switcher.sh apply <主题名>` 读取色板后生成：
+- `i3-colors.conf` — i3 窗口边框/标题栏配色
+- `kitty.conf` — 终端背景、前景、光标配色
+- polybar 颜色块 — 直接替换 `config/polybar/config.ini` 中的 `[colors]` 段落
+- 控制中心 / 音乐面板的 CSS 皮肤
+
+所有生成的文件落在 `themes/current/`，该目录已加入 **gitignore**——每次切换主题都会从 `theme.conf` 重新生成。i3 和 kitty 通过 `include` 引用 `current/` 下的文件，切换主题即时生效。
+
+可用主题：`beige`（Beige Mono，暖粉 accent）和 `wallpaper2`（Ink Portrait，紫色 accent）。通过 `theme-switcher.sh apply <名称>` 切换，或 `theme-switcher.sh menu` 用 rofi 菜单选择。
 
 ## 说明
 

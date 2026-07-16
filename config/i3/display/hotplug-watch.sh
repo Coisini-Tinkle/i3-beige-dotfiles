@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-layout_script="${HOME}/.config/i3/display-layout.sh"
+layout_script="${HOME}/.config/i3/display/layout.sh"
 polybar_launcher="${HOME}/.config/polybar/launch.sh"
 interval="${DISPLAY_HOTPLUG_POLL_INTERVAL:-2}"
 external_layout="${DISPLAY_HOTPLUG_LAYOUT:-left}"

@@ -3,7 +3,7 @@
 set -euo pipefail
 export DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$(id -u)/bus"
 
-PANEL="$HOME/.config/i3/control-center.js"
+PANEL="$HOME/.config/i3/panels/control-center.js"
 
 if pgrep -f "gjs .*control-center.js" >/dev/null 2>&1; then
     pkill -f "gjs .*control-center.js"

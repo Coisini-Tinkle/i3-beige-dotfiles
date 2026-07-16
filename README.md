@@ -164,24 +164,23 @@ config/
 ├── i3/
 │   ├── config                  ← main i3 config
 │   ├── theme-switcher.sh       ← theme engine
-│   └── themes/
-│       ├── beige/              ← "Beige Mono" theme
-│       │   ├── theme.conf      ← color palette (the only required file)
-│       │   ├── wallpaper.png   ← theme wallpaper
-│       │   └── wallpaper2.png  ← shared wallpaper (used by other themes)
-│       ├── wallpaper2/         ← "Ink Portrait" theme
-│       │   ├── theme.conf
-│       │   └── wallpaper.png → ../beige/wallpaper2.png
-│       ├── current/            ← runtime output (gitignored)
-│       │   ├── i3-colors.conf  ← generated: i3 client colors
-│       │   ├── kitty.conf      ← generated: kitty terminal colors
-│       │   ├── theme.conf      ← copy of active theme.conf
-│       │   └── wallpaper.png   ← copy of active wallpaper
-│       └── _refs/              ← color reference for other apps (manual)
-│           ├── polybar/
-│           ├── btop/
-│           ├── cava/
-│           └── fastfetch/
+│   ├── lock.sh                 ← lock screen
+│   ├── dropdown-terminal.sh    ← kitty dropdown terminal
+│   ├── tray.sh                 ← system tray startup
+│   ├── themes/                 ← theme definitions (see below)
+│   ├── display/                ← monitor & workspace routing
+│   │   ├── hotplug-watch.sh
+│   │   ├── layout.sh
+│   │   ├── routing.sh
+│   │   ├── routing.conf        ← per-machine (gitignored)
+│   │   ├── layout.conf         ← per-machine (gitignored)
+│   │   └── switch-fixed-output.sh
+│   ├── rofi/                   ← rofi menus (power, wifi, control center)
+│   ├── panels/                 ← GJS desktop panels (control center, music)
+│   ├── notify/                 ← GJS notification daemon & drop-panel
+│   ├── picom/                  ← compositor launcher & power watcher
+│   ├── test/                   ← smoke tests
+│   └── i3快捷键速查.md
 ├── polybar/
 ├── kitty/
 ├── picom/

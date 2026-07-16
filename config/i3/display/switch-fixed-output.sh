@@ -2,7 +2,7 @@
 set -euo pipefail
 
 usage() {
-  echo "用法: switch-workspace-fixed-output.sh internal|external WORKSPACE_NUMBER" >&2
+  echo "用法: display/switch-fixed-output.sh internal|external WORKSPACE_NUMBER" >&2
   exit 1
 }
 
@@ -27,7 +27,7 @@ case "$workspace_number" in
   *) workspace="$workspace_number" ;;
 esac
 
-log_file="/tmp/switch-workspace-fixed-output.log"
+log_file="/tmp/display/switch-fixed-output.log"
 
 if ! command -v i3-msg >/dev/null 2>&1 || ! command -v jq >/dev/null 2>&1; then
   i3-msg "workspace \"$workspace\"" >/dev/null

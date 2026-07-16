@@ -73,12 +73,12 @@ case "$selected" in
     *Volume*[0-9]*)       wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle ;;
     *Bluetooth*ON*)       rfkill block bluetooth ;;
     *Bluetooth*OFF*)      rfkill unblock bluetooth ;;
-    *WiFi*)               DISPLAY=:1 setsid bash ~/.config/i3/rofi-wifi-menu.sh </dev/null >/dev/null 2>&1 & ;;
+    *WiFi*)               DISPLAY=:1 setsid bash ~/.config/i3/rofi/wifi.sh </dev/null >/dev/null 2>&1 & ;;
     *Previous*)           playerctl previous ;;
     *Play*)               playerctl play ;;
     *Pause*)              playerctl pause ;;
     *Next*)               playerctl next ;;
-    *Lock*)               bash ~/.config/i3/lock-screen.sh ;;
+    *Lock*)               bash ~/.config/i3/lock.sh ;;
     *Reboot*)             systemctl reboot ;;
     *Shutdown*)           systemctl poweroff ;;
 esac

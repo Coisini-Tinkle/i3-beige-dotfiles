@@ -74,7 +74,7 @@ render() {
     else
       role="external"
     fi
-    act="bash /home/coisini/.config/i3/switch-workspace-fixed-output.sh ${role} ${num}"
+    act="bash /home/coisini/.config/i3/display/switch-fixed-output.sh ${role} ${num}"
     if [[ "${FOCUSED[$name]:-${FOCUSED_NUM[$num]:-false}}" == "true" ]]; then
       # capsule = left cap + solid block(s) + right cap, all glyph-rendered (no %{B}) so heights align
       out+="%{A1:${act}:}%{T${CAP_FONT}}%{F${INK}}${CAP_L}█%{O-1px}█%{O-1px}█${CAP_R}%{F-}%{T-}%{A} "

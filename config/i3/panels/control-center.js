@@ -146,7 +146,7 @@ function makeWifiTile() {
   box.pack_start(col, true, true, 0);
   eb.add(box);
   ssidEb.connect('button-press-event', () => {
-    shAsync('setsid bash ' + I3 + '/rofi-wifi-menu.sh');
+    shAsync('setsid bash ' + I3 + '/rofi/wifi.sh');
     Gtk.main_quit(); return true;     // consume: don't bubble to tile toggle
   });
   eb.connect('button-press-event', () => {
@@ -228,7 +228,7 @@ function armConfirm(which, btn, action) {
 }
 let pwrRow = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, spacing: 12, homogeneous: true });
 let lockBtn = powerBtn('󰌾', null);
-lockBtn.connect('clicked', () => { shAsync('bash ' + I3 + '/lock-screen.sh'); Gtk.main_quit(); });
+lockBtn.connect('clicked', () => { shAsync('bash ' + I3 + '/lock.sh'); Gtk.main_quit(); });
 rebootBtn = powerBtn('󰜉', null);
 rebootBtn.connect('clicked', () => armConfirm('reboot', rebootBtn, 'systemctl reboot'));
 shutBtn = powerBtn('󰐥', 'pwr-danger');

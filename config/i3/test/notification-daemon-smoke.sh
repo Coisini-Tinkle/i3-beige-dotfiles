@@ -4,8 +4,8 @@ set -euo pipefail
 dest="org.freedesktop.Notifications"
 path="/org/freedesktop/Notifications"
 iface="org.freedesktop.Notifications"
-daemon_pattern="^/usr/bin/gjs $HOME/.config/i3/notification-daemon.js\$"
-panel_pattern="^gjs $HOME/.config/i3/notification-drop-panel.js "
+daemon_pattern="^/usr/bin/gjs $HOME/.config/i3/notify/daemon.js\$"
+panel_pattern="^gjs $HOME/.config/i3/notify/drop-panel.js "
 started="$(date +%s)"
 
 call() {

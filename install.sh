@@ -57,6 +57,7 @@ done
 
 # Make scripts executable (operates on repo files directly)
 find "$repo_dir/config/i3" "$repo_dir/config/polybar" "$repo_dir/config/kitty" \
+  "$repo_dir/config/picom" \
   -type f -name '*.sh' -exec chmod +x {} + 2>/dev/null || true
 
 # --- Restore gitignored local configs from backup (if available) ---
@@ -80,8 +81,8 @@ restore_from_backup() {
   fi
 }
 
-restore_from_backup "i3/workspace-output-routing.conf" "i3/workspace-output-routing.conf.example"
-restore_from_backup "i3/display-layouts.conf"             "i3/display-layouts.conf.example"
+restore_from_backup "i3/display/routing.conf" "i3/display/routing.conf.example"
+restore_from_backup "i3/display/layout.conf"  "i3/display/layout.conf.example"
 
 # kitty wallpaper symlink
 if [[ ! -e "$repo_dir/config/kitty/current-bg" && -f "$repo_dir/config/kitty/img/wallpaper.png" ]]; then

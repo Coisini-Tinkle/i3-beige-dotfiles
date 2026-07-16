@@ -7,7 +7,7 @@ selected="$(echo -e "$entries" | rofi -dmenu -i -p "Power" \
   -theme-str 'listview { lines: 4; }' 2>/dev/null)"
 
 case "$selected" in
-  *Lock)    bash ~/.config/i3/lock-screen.sh ;;
+  *Lock)    bash ~/.config/i3/lock.sh ;;
   *Logout)  i3-msg exit ;;
   *Reboot)  systemctl reboot ;;
   *Shutdown) systemctl poweroff ;;

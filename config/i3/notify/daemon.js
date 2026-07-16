@@ -2,7 +2,7 @@
 
 const {GLib, Gio} = imports.gi;
 
-const PANEL_PATH = GLib.build_filenamev([GLib.get_home_dir(), '.config', 'i3', 'notification-drop-panel.js']);
+const PANEL_PATH = GLib.build_filenamev([GLib.get_home_dir(), '.config', 'i3', 'notify/drop-panel.js']);
 const DBUS_NAME = 'org.freedesktop.Notifications';
 const DBUS_PATH = '/org/freedesktop/Notifications';
 const MAX_QUEUE = 3;

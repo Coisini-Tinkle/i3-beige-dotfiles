@@ -8,7 +8,7 @@ readonly CURRENT_DIR="$THEMES_DIR/current"
 readonly STATE_FILE="$I3_DIR/.current-theme"
 readonly POLYBAR_CONFIG="/home/coisini/.config/polybar/config.ini"
 readonly POLYBAR_LAUNCH="/home/coisini/.config/polybar/launch.sh"
-readonly TRAY_APPLETS_LAUNCH="$I3_DIR/tray-applets-launch.sh"
+readonly TRAY_APPLETS_LAUNCH="$I3_DIR/tray.sh"
 readonly KITTY_CONF="/home/coisini/.config/kitty/kitty.conf"
 SKIP_LIVE_POLYBAR="${SKIP_LIVE_POLYBAR:-1}"
 

@@ -168,24 +168,23 @@ config/
 ├── i3/
 │   ├── config                  ← i3 主配置
 │   ├── theme-switcher.sh       ← 主题引擎
-│   └── themes/
-│       ├── beige/              ← "Beige Mono" 主题
-│       │   ├── theme.conf      ← 色板（唯一必需的文件）
-│       │   ├── wallpaper.png   ← 主题壁纸
-│       │   └── wallpaper2.png  ← 共享壁纸（其他主题引用）
-│       ├── wallpaper2/         ← "Ink Portrait" 主题
-│       │   ├── theme.conf
-│       │   └── wallpaper.png → ../beige/wallpaper2.png
-│       ├── current/            ← 运行时生成（gitignored）
-│       │   ├── i3-colors.conf  ← 生成：i3 窗口配色
-│       │   ├── kitty.conf      ← 生成：kitty 终端配色
-│       │   ├── theme.conf      ← 当前主题色板副本
-│       │   └── wallpaper.png   ← 当前壁纸副本
-│       └── _refs/              ← 其他 app 的配色参考（手动）
-│           ├── polybar/
-│           ├── btop/
-│           ├── cava/
-│           └── fastfetch/
+│   ├── lock.sh                 ← 锁屏
+│   ├── dropdown-terminal.sh    ← kitty 下拉终端
+│   ├── tray.sh                 ← 系统托盘启动
+│   ├── themes/                 ← 主题定义（详见下文）
+│   ├── display/                ← 显示器 & 工作区路由
+│   │   ├── hotplug-watch.sh
+│   │   ├── layout.sh
+│   │   ├── routing.sh
+│   │   ├── routing.conf        ← 每台机器独立（gitignored）
+│   │   ├── layout.conf         ← 每台机器独立（gitignored）
+│   │   └── switch-fixed-output.sh
+│   ├── rofi/                   ← rofi 菜单（电源、WiFi、控制中心）
+│   ├── panels/                 ← GJS 桌面面板（控制中心、音乐）
+│   ├── notify/                 ← GJS 通知 daemon 和下拉面板
+│   ├── picom/                  ← 合成器启动器和电源监视器
+│   ├── test/                   ← 冒烟测试
+│   └── i3快捷键速查.md
 ├── polybar/
 ├── kitty/
 ├── picom/

@@ -1,12 +1,11 @@
 # Runtime/generated files
-config/i3/workspace-output-routing.conf
-config/i3/display-layouts.conf
+config/i3/display/routing.conf
+config/i3/display/layout.conf
 config/kitty/current-bg
 
 # Theme engine: runtime state + per-theme generated artifacts
 # (theme-switcher.sh regenerates these from <theme>/theme.conf on apply)
 config/i3/.current-theme
-config/i3/.wallpaper-theme
 config/i3/.music-panel-skin
 config/i3/themes/current/
 config/i3/themes/*/i3-colors.conf
@@ -31,3 +30,6 @@ i3-left-layout-check*.png
 
 # Local third-party source checkouts
 i3lock-color/
+
+# Personal media / notes (not part of dotfiles)
+goal/

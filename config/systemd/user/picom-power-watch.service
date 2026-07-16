@@ -5,6 +5,6 @@ After=picom.service
 
 [Service]
 Type=simple
-ExecStart=%h/.config/i3/picom-power-watch.sh
+ExecStart=%h/.config/i3/picom/power-watch.sh
 Restart=on-failure
 RestartSec=2

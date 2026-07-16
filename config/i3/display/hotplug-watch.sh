@@ -5,7 +5,7 @@ layout_script="${HOME}/.config/i3/display-layout.sh"
 polybar_launcher="${HOME}/.config/polybar/launch.sh"
 interval="${DISPLAY_HOTPLUG_POLL_INTERVAL:-2}"
 external_layout="${DISPLAY_HOTPLUG_LAYOUT:-left}"
-monitor_layouts_file="${HOME}/.config/i3/display-layouts.conf"
+monitor_layouts_file="${HOME}/.config/i3/display/layout.conf"
 once=0
 
 exec 9>/tmp/display-hotplug-watch.lock

@@ -2,7 +2,7 @@
 set -euo pipefail
 
 workspace_routing_script="${HOME}/.config/i3/display/routing.sh"
-monitor_layouts_file="${HOME}/.config/i3/display-layouts.conf"
+monitor_layouts_file="${HOME}/.config/i3/display/layout.conf"
 polybar_launcher="${HOME}/.config/polybar/launch.sh"
 
 usage() {

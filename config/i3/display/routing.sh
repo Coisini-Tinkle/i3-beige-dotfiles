@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-readonly ROUTING_FILE="${HOME}/.config/i3/workspace-output-routing.conf"
+readonly ROUTING_FILE="${HOME}/.config/i3/display/routing.conf"
 readonly WORKSPACES=(
   "1:I"
   "2:II"

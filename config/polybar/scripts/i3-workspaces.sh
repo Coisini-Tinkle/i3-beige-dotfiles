@@ -11,7 +11,7 @@
 
 set -u
 
-ROUTING="$HOME/.config/i3/workspace-output-routing.conf"
+ROUTING="$HOME/.config/i3/display/routing.conf"
 
 INK="#1a1a1a"
 DIM="#6a6258"

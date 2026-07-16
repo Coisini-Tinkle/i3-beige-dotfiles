@@ -16,8 +16,8 @@ mouse_warping none
 floating_modifier $mod
 workspace_auto_back_and_forth no
 
-default_border pixel 2
-default_floating_border pixel 2
+default_border pixel 3
+default_floating_border pixel 3
 hide_edge_borders smart
 gaps inner 10
 gaps outer 4
@@ -30,13 +30,15 @@ for_window [class="^kitty-float$"] floating enable, border pixel 1, move positio
 for_window [class="^kitty-dropdown$"] floating enable, sticky enable, border pixel 1, move position center, resize set 1400 720
 for_window [class="^notification-drop-panel$"] floating enable, sticky enable, border pixel 0
 
-client.focused          #1a1a1a #1a1a1a #f5ebe1 #ca7081 #1a1a1a
+# Theme colors first — overridden below for focus visibility
+include /home/coisini/.config/i3/themes/current/i3-colors.conf
+
+client.focused          #4f8a82 #4f8a82 #f5ebe1 #4f8a82 #4f8a82
 client.focused_inactive #dcd3ca #dcd3ca #1a1a1a #dcd3ca #dcd3ca
-client.unfocused        #c9bfb4 #dcd3ca #6a6258 #c9bfb4 #c9bfb4
+client.unfocused        #dcd3ca #dcd3ca #6a6258 #dcd3ca #dcd3ca
 client.urgent           #ca7081 #ca7081 #f5ebe1 #ca7081 #ca7081
 client.placeholder      #dcd3ca #dcd3ca #1a1a1a #dcd3ca #dcd3ca
 client.background       #f5ebe1
-include /home/coisini/.config/i3/themes/current/i3-colors.conf
 
 set $ws1 "1:I"
 set $ws2 "2:II"

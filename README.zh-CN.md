@@ -65,9 +65,16 @@
 ./install.sh
 ```
 
-安装脚本会把配置和用户 systemd 单元复制到 `${XDG_CONFIG_HOME:-$HOME/.config}`，把已有配置备份到带时间戳的目录，并重新加载用户 systemd 管理器。它不会重启 i3，也不会主动启动桌面服务。
+安装脚本会在 `${XDG_CONFIG_HOME:-$HOME/.config}` 下创建指向仓库的符号链接：
 
-安装后手动重载 i3：
+```
+~/.config/i3      → repo/config/i3
+~/.config/polybar → repo/config/polybar
+~/.config/kitty   → repo/config/kitty
+... (rofi, picom, dunst, gtk-3.0, systemd/user)
+```
+
+已有的配置目录会在创建符号链接前备份到带时间戳的目录。安装是**幂等**的：重复运行会跳过已经指向正确路径的条目。安装后重载 i3：
 
 ```sh
 i3-msg reload
@@ -75,66 +82,23 @@ i3-msg reload
 
 ## 维护工作流
 
-这套 dotfiles 有两种实用维护方式。
-
-### 方案 1：真实配置优先
-
-日常继续使用真实桌面配置：
-
-```text
-~/.config/i3
-~/.config/polybar
-~/.config/rofi
-~/.config/picom
-~/.config/dunst
-~/.config/kitty
-```
-
-当某个版本稳定到可以发布时，再把真实配置同步回这个仓库，检查 diff，然后提交。
-
-在视觉设计还频繁变化时，这是推荐工作流。它能保持当前桌面调试最快、风险最低，同时仓库作为清理后的发布副本存在。
-
-取舍：
-
-- 对当前桌面会话风险最低
-- 可以直接在真实环境中快速试验
-- 发布前需要有意识地同步一次
-- 仓库可能会暂时落后于真实桌面配置
-
-### 方案 2：仓库优先
-
-直接编辑这个仓库：
-
-```text
-/home/coisini/i3-beige-dotfiles/config/i3
-/home/coisini/i3-beige-dotfiles/config/polybar
-/home/coisini/i3-beige-dotfiles/config/rofi
-/home/coisini/i3-beige-dotfiles/config/picom
-/home/coisini/i3-beige-dotfiles/config/dunst
-/home/coisini/i3-beige-dotfiles/config/kitty
-```
-
-然后把仓库版本安装到真实桌面：
+使用符号链接后，**编辑 `~/.config/` 和编辑仓库是同一个操作**——它们共享同一个 inode，不需要额外的"同步"步骤。每次修改都会自动反映到 Git 中。
 
 ```sh
-./install.sh
-i3-msg reload
+# 两个路径指向同一个文件，改哪里都行：
+vim ~/.config/i3/config
+vim ~/i3-beige-dotfiles/config/i3/config
+
+# 检查、提交、推送：
+cd ~/i3-beige-dotfiles
+git diff
+git commit -m "i3: 调整窗口间距"
+git push
 ```
 
-当这套配置稳定以后，这是更适合长期维护的工作流，因为 Git 会成为唯一可信源。
+**新机器部署** 只需 `git clone && ./install.sh`。安装脚本会检测已有配置，备份后再创建符号链接。
 
-取舍：
-
-- Git 永远是最新状态
-- 每次改动都容易 diff、commit、revert
-- 改完需要再应用到 `~/.config`
-- 有问题的安装可能影响真实桌面，所以安装前应该先检查 diff
-
-### 推荐路径
-
-现在先使用方案 1。等视觉系统和脚本稳定后，再切换到方案 2。
-
-在仓库工作流完全稳定前，不建议把真实配置目录替换成 symlink。symlink 很方便，但路径损坏或 checkout 不完整时，可能影响 i3 启动和恢复。
+**各机器独立的本地配置**（`workspace-output-routing.conf`、`display-layouts.conf`、`current-bg`）已加入 `.gitignore`。安装脚本优先从备份恢复，没有备份时才使用 `*.example` 模板。这些文件通过符号链接存在于仓库工作树中，但永远不会被提交，每台机器保持各自的版本。
 
 ## 依赖
 
@@ -189,13 +153,13 @@ systemctl --user set-environment PICOM_POWER_PATH=/sys/class/power_supply/AC/onl
 
 ## 本地生成文件
 
-这些文件有意不纳入版本控制：
+这些文件有意不纳入版本控制（每台机器独立配置）：
 
 - `config/i3/workspace-output-routing.conf`
 - `config/i3/display-layouts.conf`
 - `config/kitty/current-bg`
 
-仓库中提供了对应的 `*.example` 示例文件。安装脚本会在首次安装时创建本地副本。
+仓库中提供了对应的 `*.example` 示例文件。首次安装时从示例创建，重新安装时优先从备份目录恢复之前的版本。
 
 ## 目录结构
 

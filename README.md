@@ -61,9 +61,16 @@ Clone the repo and run:
 ./install.sh
 ```
 
-The installer copies configs and user systemd units into `${XDG_CONFIG_HOME:-$HOME/.config}`, backs up existing app configs into a timestamped directory, and reloads the user systemd manager. It does not restart i3 or launch desktop services.
+The installer creates symlinks from `${XDG_CONFIG_HOME:-$HOME/.config}` into the repo:
 
-After installation, reload i3:
+```
+~/.config/i3      → repo/config/i3
+~/.config/polybar → repo/config/polybar
+~/.config/kitty   → repo/config/kitty
+... (rofi, picom, dunst, gtk-3.0, systemd/user)
+```
+
+Existing config directories are backed up to a timestamped directory before symlinking. The install is **idempotent**: re-running it skips entries that already point to the correct repo paths. After installation, reload i3:
 
 ```sh
 i3-msg reload
@@ -71,66 +78,23 @@ i3-msg reload
 
 ## Maintenance Workflow
 
-There are two practical ways to maintain these dotfiles.
-
-### Option 1: Live Config First
-
-Use the real desktop configs day to day:
-
-```text
-~/.config/i3
-~/.config/polybar
-~/.config/rofi
-~/.config/picom
-~/.config/dunst
-~/.config/kitty
-```
-
-When a version is stable enough to publish, sync the live configs back into this repo, review the diff, then commit.
-
-This is the recommended workflow while the visual design is still changing often. It keeps the active desktop workflow fast and low-risk, while the repository remains a cleaned-up publishing copy.
-
-Tradeoffs:
-
-- Lowest risk for the current desktop session
-- Easy to experiment directly in the live environment
-- Requires a deliberate sync step before publishing
-- The repo may lag behind the live desktop until synced
-
-### Option 2: Repository First
-
-Edit this repository directly:
-
-```text
-/home/coisini/i3-beige-dotfiles/config/i3
-/home/coisini/i3-beige-dotfiles/config/polybar
-/home/coisini/i3-beige-dotfiles/config/rofi
-/home/coisini/i3-beige-dotfiles/config/picom
-/home/coisini/i3-beige-dotfiles/config/dunst
-/home/coisini/i3-beige-dotfiles/config/kitty
-```
-
-Then install the repo version into the live desktop:
+With symlinks in place, **editing `~/.config/` and editing the repo are the same operation** — they share the same inode. There is no "sync step." Every config change is automatically visible to Git.
 
 ```sh
-./install.sh
-i3-msg reload
+# Edit anywhere — both paths resolve to the same file:
+vim ~/.config/i3/config
+vim ~/i3-beige-dotfiles/config/i3/config
+
+# Review, commit, push as usual:
+cd ~/i3-beige-dotfiles
+git diff
+git commit -m "i3: tweak workspace gaps"
+git push
 ```
 
-This is the better long-term workflow after the setup becomes stable, because Git becomes the single source of truth.
+**New machine setup** is just `git clone && ./install.sh`. The installer detects existing configs, backs them up, and symlinks the repo versions in place.
 
-Tradeoffs:
-
-- Git is always up to date
-- Every change is easy to diff, commit, and revert
-- Requires applying changes back into `~/.config`
-- A bad install can affect the live desktop, so review diffs first
-
-### Recommended Path
-
-Use Option 1 for now. Once the visual system and scripts settle down, switch to Option 2.
-
-Avoid replacing the live config directories with symlinks until the repository workflow is fully stable. Symlinks are convenient, but a broken path or incomplete checkout can affect i3 startup and recovery.
+**Per-machine local configs** (`workspace-output-routing.conf`, `display-layouts.conf`, `current-bg`) are gitignored. The installer restores them from backup when available, or falls back to the `*.example` templates. These files live in the repo working tree (through the symlink) but are never committed, so each machine keeps its own.
 
 ## Dependencies
 
@@ -185,13 +149,13 @@ Picom automatically detects the first available power-supply `online` file when 
 
 ## Generated Local Files
 
-These files are intentionally not versioned:
+These files are intentionally not versioned (per-machine state):
 
 - `config/i3/workspace-output-routing.conf`
 - `config/i3/display-layouts.conf`
 - `config/kitty/current-bg`
 
-Examples are included as `*.example`. The install script creates first-run copies when needed.
+Examples are included as `*.example`. On first install, the script creates them from the examples. On re-install, it restores the previous versions from the backup directory when available.
 
 ## Structure
 

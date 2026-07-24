@@ -61,6 +61,7 @@ exec_always --no-startup-id sh -c 'systemctl --user import-environment DISPLAY X
 exec_always --no-startup-id sh -c 'command -v copyq >/dev/null && copyq --start-server'
 exec_always --no-startup-id sh -c 'bash /home/coisini/.config/i3/display/hotplug-watch.sh >/tmp/display-hotplug-watch.log 2>&1 &'
 exec_always --no-startup-id sh -c 'bash /home/coisini/.config/i3/display/routing.sh auto --reload-if-changed >/tmp/workspace-routing.log 2>&1 &'
+exec_always --no-startup-id /home/coisini/.local/bin/autotiling
 exec_always --no-startup-id bash /home/coisini/.config/polybar/launch.sh
 exec_always --no-startup-id /home/coisini/.config/i3/tray.sh
 

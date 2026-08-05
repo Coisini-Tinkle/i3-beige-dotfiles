@@ -28,5 +28,5 @@ while true; do
             echo "%{T6}%{F${RED}}󰹑%{F-}%{T-}"
             ;;
     esac
-    sleep 5
+    sleep 30
 done

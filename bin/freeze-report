@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+# freeze-report —— 重启后复盘：如果上次是 freeze 安全重启，弹桌面通知报告
+#
+# 由 i3 的 exec_always 在每次登录时自动运行；也可手动执行。
+# 逻辑：~/.cache/freeze/crash-context.txt 存在 → 说明刚经历过 freeze 重启，
+#       读它 + 补充上一开机错误日志，拼报告 → notify-send 弹通知 → 清理。
+#       不存在 → 正常开机，静默退出。
+set -u
+
+CTX="$HOME/.cache/freeze/crash-context.txt"
+LAST_REPORT="$HOME/.cache/freeze/last-report.txt"
+
+# 正常开机（没用过 freeze）：什么都不做
+[[ -f "$CTX" ]] || exit 0
+
+# 等桌面环境就绪（i3 exec_always 触发时，通知守护进程可能还没起来）
+sleep 3
+
+# 补充：上一开机（被 freeze 打断的那次）最后 20 条错误日志
+prev_errors="$(journalctl -b -1 -p 3 --no-pager 2>/dev/null | tail -20)"
+
+# 拼完整报告
+mkdir -p "$HOME/.cache/freeze"
+{
+  echo "检测到上次使用了 freeze 安全重启，诊断信息如下："
+  echo
+  cat "$CTX"
+  if [[ -n "$prev_errors" ]]; then
+    echo
+    echo "--- 重启前最后 20 条错误日志 ---"
+    echo "$prev_errors"
+  fi
+  echo
+  echo "排查提示：重点看上面的 xid/nvidia（显卡）或 picom（合成器）错误。"
+  echo "完整日志：journalctl -b -1   |   磁盘状态：journalctl -b -1 | grep -iE 'xid|nvidia|oom|hang'"
+} > "$LAST_REPORT"
+
+# 弹通知：消息太长 dunst 会很难看，截断到前 40 行 / 约 1800 字符，完整版看文件
+summary="$(sed -n '1,40p' "$LAST_REPORT")"
+if (( ${#summary} > 1800 )); then
+  summary="${summary:0:1800}"
+  summary+="..."
+fi
+
+if command -v notify-send >/dev/null 2>&1; then
+  # -t 0 = 常驻不自动消失（critical 级），配合 dunst 用户需手动关
+  notify-send -u critical -t 0 \
+    "⚠️ 上次是 freeze 重启的" \
+    "$summary
+
+（完整报告：$LAST_REPORT）" 2>/dev/null
+else
+  echo "⚠️ 上次是 freeze 重启的，报告见：$LAST_REPORT" >&2
+fi
+
+# 清理，避免每次登录都弹
+rm -f "$CTX"
+exit 0

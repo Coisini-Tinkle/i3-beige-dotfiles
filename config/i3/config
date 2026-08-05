@@ -67,6 +67,9 @@ exec_always --no-startup-id /home/coisini/.config/i3/tray.sh
 
 exec_always --no-startup-id sh -c 'pkill -x dunst >/dev/null 2>&1 || true'
 
+# 上次 freeze 安全重启的话，弹桌面通知复盘（脚本内自带 sleep 等通知守护进程就绪）
+exec_always --no-startup-id /home/coisini/.local/bin/freeze-report
+
 bindsym $mod+Return exec $terminal
 bindsym $mod+grave exec --no-startup-id bash /home/coisini/.config/i3/dropdown-terminal.sh
 bindsym Mod1+space exec --no-startup-id $launcher

@@ -1,0 +1,19 @@
+# Hermes web dashboard — browser UI (Vite/React frontend + REST API) on port 9119.
+# Serves alongside the resident backend (hermes-serve) which lives on port 9120.
+[Unit]
+Description=Hermes Agent web dashboard (browser UI)
+Documentation=https://hermes-agent.nousresearch.com
+After=network.target hermes-serve.service
+Wants=hermes-serve.service
+
+[Service]
+Type=simple
+ExecStart=/home/coisini/.local/bin/hermes dashboard --port 9119 --skip-build --no-open
+WorkingDirectory=/home/coisini
+Restart=always
+RestartSec=3
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=default.target

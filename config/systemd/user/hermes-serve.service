@@ -1,0 +1,20 @@
+# Hermes backend server — persistent resident service
+# JSON-RPC/WebSocket gateway (default port 9119) for the desktop app / remote clients.
+# Wrapper at ~/.local/bin/hermes unsets PYTHONPATH/PYTHONHOME before exec-ing the venv binary.
+[Unit]
+Description=Hermes Agent backend server (JSON-RPC/WebSocket)
+Documentation=https://hermes-agent.nousresearch.com
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/home/coisini/.local/bin/hermes serve --skip-build --port 9120
+WorkingDirectory=/home/coisini
+Restart=always
+RestartSec=3
+# Backend signals readiness via stdout (HERMES_BACKEND_READY port=9119)
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=default.target

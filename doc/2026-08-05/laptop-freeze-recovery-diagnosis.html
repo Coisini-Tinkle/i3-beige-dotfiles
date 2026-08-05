@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>笔记本卡死了怎么办？（通俗版）</title>
+  <style>
+    body { font-family: "Helvetica Neue", Arial, "PingFang SC", "Microsoft YaHei", sans-serif; max-width: 760px; margin: 40px auto; padding: 0 24px; line-height: 1.8; color: #222; background: #fff; font-size: 1.02em; }
+    h1 { font-size: 1.5em; border-bottom: 2px solid #333; padding-bottom: 8px; }
+    h2 { font-size: 1.15em; margin-top: 2em; border-left: 4px solid #555; padding-left: 10px; }
+    p { margin: 0.8em 0; }
+    code { background: #f4f4f4; padding: 2px 6px; border-radius: 3px; font-family: monospace; font-size: 0.92em; }
+    pre { background: #f4f4f4; padding: 12px 14px; border-radius: 4px; overflow-x: auto; font-size: 0.92em; line-height: 1.6; }
+    .kbd { background: #eee; border: 1px solid #bbb; border-bottom-width: 2px; border-radius: 4px; padding: 2px 8px; font-family: monospace; font-size: 0.95em; }
+    .hero {
+      background: #e8f5e9; border: 2px solid #2e7d32; border-radius: 8px;
+      padding: 18px 22px; margin: 1.4em 0; font-size: 1.05em;
+    }
+    .hero .big { font-size: 1.35em; font-weight: bold; color: #1b5e20; }
+    .step {
+      border: 1px solid #ddd; border-radius: 8px; padding: 14px 18px; margin: 12px 0;
+      background: #fafafa;
+    }
+    .step .n { font-weight: bold; color: #1565c0; }
+    .why { background: #fff8e1; border-left: 5px solid #f9a825; border-radius: 4px; padding: 12px 16px; margin: 1.2em 0; }
+    .note { font-size: 0.9em; color: #555; }
+    .ok { color: #2e7d32; font-weight: bold; }
+    .no { color: #c62828; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+<h1>笔记本卡死了怎么办？（通俗版）</h1>
+<p class="note">2026-08-05 · 关于 coisini-KLVC-WXX9 这台笔记本的卡死问题。写给不懂 Linux 细节的你看，术语尽量都换成大白话。</p>
+
+<!-- ===================== 最要紧的 ===================== -->
+<div class="hero">
+  <p class="big">先记住一件事：卡死 ≠ 电脑坏了 ≠ 必须断电</p>
+  <p>电脑"冻住"的时候，通常只是<b>表面（桌面画面、鼠标键盘）</b>卡住了，电脑的<b>"内核"（最底层的系统）其实还活着</b>。就像手机上一个 App 卡住不动，但手机本身没死——你不需要关机，找到办法把那个 App 杀掉就行。</p>
+  <p>所以卡死时，<b>按顺序试下面几招，招招都比"强制断电"安全</b>。真正用得到断电的情况，几乎不存在。</p>
+</div>
+
+<!-- ===================== 卡死了怎么做 ===================== -->
+<h2>一、卡死了，一步步这样做</h2>
+
+<div class="step">
+  <p><span class="n">第 0 步：先干等 30 秒。</span> 有时显卡自己在"自我抢救"，等几秒它自己就缓过来了。顺手按一下 <span class="kbd">NumLock</span>（数字锁定键），<b>看键盘灯亮不亮</b>：<span class="ok">灯还能亮 → 电脑没事，只是表面卡了，放心往下救</span>；灯都不亮了 → 才是真死透，直接跳第 3 步。</p>
+</div>
+
+<div class="step">
+  <p><span class="n">第 1 步：切到一个黑屏的"备胎"界面，把桌面特效重启。</span></p>
+  <p>同时按 <span class="kbd">Ctrl</span> + <span class="kbd">Alt</span> + <span class="kbd">F3</span>，会切到一个纯文字的登录界面。输入你的用户名和密码登录进去，然后敲这两行命令（一行敲完按回车，再敲下一行）：</p>
+  <pre># 第一行：只重启"毛玻璃/动画"这个特效程序，最可能救回来
+systemctl --user restart picom
+
+# 如果上面这行没反应，再敲这行：把整个桌面重启
+sudo systemctl restart gdm</pre>
+  <p>敲完应该就能回到桌面了。想切回图形界面，按 <span class="kbd">Ctrl</span> + <span class="kbd">Alt</span> + <span class="kbd">F1</span> 或 <span class="kbd">F2</span>。</p>
+</div>
+
+<div class="step">
+  <p><span class="n">第 2 步：还不行？在黑屏终端里敲一个词 <code>freeze</code>，它会自动保存数据并重启。</span></p>
+  <p>就在刚才那个黑屏终端（<span class="kbd">Ctrl</span>+<span class="kbd">Alt</span>+<span class="kbd">F3</span>）里登录后，输入：</p>
+  <pre>freeze</pre>
+  <p>回车即可。它会自动：<b>① 保存没写完的数据 → ② 干净重启</b>；如果系统卡得连重启命令都没反应，它会自动改用<b>内核级硬重启</b>，把数据保护到最后一刻。已配免密码，不弹密码。</p>
+  <p>（如果哪天没配成功，也可以手动按三个"神仙键"，效果一样：左手按住 <span class="kbd">Alt</span>，右手按 <span class="kbd">PrtSc</span>（印屏键）再分别按 <span class="kbd">S</span>、<span class="kbd">U</span>、<span class="kbd">B</span> —— 保存 → 保护磁盘 → 重启。这三个键在你这台电脑上<b>本来就已开启</b>。）</p>
+</div>
+
+<div class="step">
+  <p><span class="n">第 3 步：再不行，长按电源键 10 秒。</span> 这是笔记本标准硬关机，由硬件芯片执行，比你想象的安全，一般不丢文件。按住别松手，直到屏幕全黑。</p>
+</div>
+
+<div class="step">
+  <p><span class="n">第 4 步（几乎用不到）：拆电池。</span> 只有长按电源键都没反应才需要。这台机器基本到不了这一步。</p>
+</div>
+
+<div class="why">
+  <p><b>为什么不用一上来就断电？</b> 因为强制断电 = 正写到一半的数据可能损坏，还让你白白损失"还能救回来"的机会。上面的招数最多花你一分钟，多数情况在第 1 步就回来了。</p>
+</div>
+
+<!-- ===================== 为什么会卡 ===================== -->
+<h2>二、为什么会卡死（一句话解释）</h2>
+
+<p>你最近给电脑加了两个东西：<b>① 窗口动画</b>（窗口打开关闭会滑来滑去）和 <b>② 毛玻璃特效</b>（窗口后面的内容模糊成一片）。这俩靠你笔记本的 <b>NVIDIA 显卡</b>（MX350）来算，而这套组合在 NVIDIA 显卡上<b>是出了名地容易把桌面冻住</b>。</p>
+
+<p>所以：<b>不是电脑坏了，是你刚装的特效和这块显卡合不来。</b> 好消息是，特效是可以关的。</p>
+
+<!-- ===================== 怎么试 ===================== -->
+<h2>三、怎么试一下，看是不是它的锅</h2>
+
+<div class="step">
+  <p><span class="n">办法一（最直接）：把动画关掉，用几天看看。</span> 只需把配置文件里的一行改成 "关"，再重启一下特效就行。关掉后毛玻璃还在，只是窗口动画没了，几乎不影响使用。</p>
+</div>
+
+<div class="step">
+  <p><span class="n">办法二（免费送的观察线索）：留意"是不是只插着电才卡"。</span> 你这台电脑设置成：插电时特效全开（含毛玻璃），用电池时自动把毛玻璃关掉。所以如果<b>插电才卡、拔了电就不卡</b>——那毛玻璃基本就是元凶，实锤了。</p>
+</div>
+
+<div class="step">
+  <p><span class="n">办法三：下次卡死时，帮我记两个细节。</span> ① 按 NumLock，灯亮不亮？② 当时是插着电还是电池？有了这两条，下次就能直接判断是不是特效的锅。</p>
+</div>
+
+<!-- ===================== 总结 ===================== -->
+<h2>四、总结成一张小抄</h2>
+
+<pre>卡死了 → 看 NumLock 灯（亮=没事）
+    ├─ 先等 30 秒
+    ├─ Ctrl+Alt+F3 → 登录 → freeze          ← 保存数据并重启（首选）
+    ├─ 想先抢救不重启？→ systemctl --user restart picom
+    ├─ （或手动）Alt+PrtSc+S / U / B
+    ├─ 长按电源键 10 秒
+    └─ 拆电池（永远用不到）
+
+排查 → 关动画试试 · 看是不是插电才卡
+</pre>
+
+<p class="note">（给技术人员的备注：本机 <code>kernel.sysrq=176</code>，S/U/B 已启用、R/E/I/K 未启用；卡死根因疑似 <code>picom-ft-labs</code> 的 GLX + blur/动画在 NVIDIA 私有驱动上，属高置信推断、尚未实证。完整技术版见历史版本或直接问我。）</p>
+
+</body>
+</html>

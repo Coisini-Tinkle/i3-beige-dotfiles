@@ -55,6 +55,19 @@ for app in "${apps[@]}"; do
   echo "[ok] $dst → $src"
 done
 
+# --- Personal scripts in repo/bin → ~/.local/bin (e.g. freeze / reboot-safe) ---
+bin_src="$repo_dir/bin"
+bin_dst="$HOME/.local/bin"
+if [[ -d "$bin_src" ]]; then
+  mkdir -p "$bin_dst"
+  for f in "$bin_src"/*; do
+    [[ -f "$f" ]] || continue
+    ln -sfn "$f" "$bin_dst/$(basename "$f")"
+    chmod +x "$bin_dst/$(basename "$f")"
+    echo "[ok] $bin_dst/$(basename "$f") → $f"
+  done
+fi
+
 # Make scripts executable (operates on repo files directly)
 find "$repo_dir/config/i3" "$repo_dir/config/polybar" "$repo_dir/config/kitty" \
   "$repo_dir/config/picom" \

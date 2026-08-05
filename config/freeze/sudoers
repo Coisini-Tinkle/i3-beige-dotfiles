@@ -1,0 +1,6 @@
+# freeze —— 卡死安全重启的免密码 sudo 规则
+# 安装到 /etc/sudoers.d/reboot-safe，属主 root，权限 440：
+#   sed 's/USER/'"$USER"'/g' 本文件 | sudo tee /etc/sudoers.d/reboot-safe
+#   sudo chmod 440 /etc/sudoers.d/reboot-safe && sudo visudo -c
+# 注意：仅限这一个脚本免密，不影响其他 sudo 命令。
+USER ALL=(root) NOPASSWD: /home/USER/.local/bin/reboot-safe

@@ -20,6 +20,7 @@ case "$state" in
 esac
 
 selected="$(echo -e "$entries" | rofi -dmenu -i -p "win11 — $state" \
+  -me-select-entry '' -me-accept-entry mouseprimary \
   -theme-str 'listview { lines: 8; }' 2>/dev/null)"
 
 [[ -z "$selected" ]] && exit 0

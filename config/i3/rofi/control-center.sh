@@ -65,6 +65,7 @@ fi
 entries="${player_info}\n${vol_status}\n󰼧 Previous\n${bt_status}\n${toggle_label}\n${wifi_status}\n󰼨 Next\n󰌾 Lock Screen\n\n󰜉 Reboot\n\n󰐥 Shutdown"
 
 selected="$(echo -e "$entries" | rofi -dmenu -i -p "" \
+    -me-select-entry '' -me-accept-entry mouseprimary \
     -theme ~/.config/rofi/control-center.rasi \
     -theme-str 'listview { columns: 2; lines: 6; }' 2>/dev/null)"
 

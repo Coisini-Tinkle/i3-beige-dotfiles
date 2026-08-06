@@ -21,6 +21,7 @@ get_networks() {
 }
 
 selected="$(get_networks | rofi -dmenu -i -p "WiFi" \
+  -me-select-entry '' -me-accept-entry mouseprimary \
   -theme-str 'listview { lines: 10; }' 2>/dev/null)"
 
 [[ -z "$selected" ]] && exit 0

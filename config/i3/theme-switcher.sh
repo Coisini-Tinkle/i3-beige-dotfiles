@@ -428,6 +428,7 @@ show_menu() {
 
   local selected id
   selected="$(theme_entries | rofi -dmenu -i -p "Theme" \
+    -me-select-entry '' -me-accept-entry mouseprimary \
     -theme-str 'listview { lines: 8; }' 2>/dev/null || true)"
   [[ -z "$selected" ]] && exit 0
 

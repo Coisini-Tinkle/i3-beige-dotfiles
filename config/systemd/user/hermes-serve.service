@@ -8,6 +8,7 @@ After=network.target
 
 [Service]
 Type=simple
+Environment=PATH=/home/coisini/.nvm/versions/node/v22.23.1/bin:/home/coisini/.local/bin:/home/coisini/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 ExecStart=/home/coisini/.local/bin/hermes serve --skip-build --port 9120
 WorkingDirectory=/home/coisini
 Restart=always

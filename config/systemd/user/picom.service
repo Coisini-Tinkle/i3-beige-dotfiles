@@ -1,7 +1,7 @@
 [Unit]
 Description=Picom X11 compositor
 StartLimitIntervalSec=30
-StartLimitBurst=5
+StartLimitBurst=20
 
 [Service]
 Type=simple

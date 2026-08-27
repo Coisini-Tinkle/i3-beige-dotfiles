@@ -9,6 +9,7 @@ readonly STATE_FILE="$I3_DIR/.current-theme"
 readonly POLYBAR_CONFIG="/home/coisini/.config/polybar/config.ini"
 readonly POLYBAR_LAUNCH="/home/coisini/.config/polybar/launch.sh"
 readonly TRAY_APPLETS_LAUNCH="$I3_DIR/tray.sh"
+readonly SET_WALLPAPER="$I3_DIR/set-wallpaper.sh"
 readonly KITTY_CONF="/home/coisini/.config/kitty/kitty.conf"
 SKIP_LIVE_POLYBAR="${SKIP_LIVE_POLYBAR:-1}"
 
@@ -383,7 +384,7 @@ apply_wallpaper_with_bar_restart() {
   stop_polybar
 
   if command -v feh >/dev/null 2>&1; then
-    feh --no-fehbg --bg-fill "$CURRENT_DIR/wallpaper.png" || true
+    bash "$SET_WALLPAPER" "$CURRENT_DIR/wallpaper.png" || true
   fi
 
   launch_polybar

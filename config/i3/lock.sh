@@ -14,22 +14,9 @@ if [[ -f "/home/coisini/.config/i3/themes/current/theme.conf" ]]; then
   BACKGROUND_COLOR="${LOCK_BG:-${PANEL:-$BACKGROUND_COLOR}}"
 fi
 
-screen_size="$(
-  xrandr --query \
-    | awk '/^Screen 0:/ { for (i = 1; i <= NF; ++i) if ($i == "current") { print $(i+1) "x" $(i+3); exit } }' \
-    | tr -d ','
-)"
-
-if [[ -z "$screen_size" ]]; then
-  screen_size="1920x1080"
-fi
-
-convert "$SOURCE_IMAGE" \
-  -resize "${screen_size}" \
-  -background "$BACKGROUND_COLOR" \
-  -gravity center \
-  -extent "${screen_size}" \
-  "$OUTPUT_IMAGE"
+# 逐屏 cover 合成虚拟画布（避免锁屏壁纸卡在两屏中间），底色用主题 LOCK_BG
+WALLPAPER_BG="$BACKGROUND_COLOR" \
+  bash "/home/coisini/.config/i3/set-wallpaper.sh" "$SOURCE_IMAGE" "$OUTPUT_IMAGE"
 
 lock_cmd="${I3LOCK_BIN:-}"
 if [[ -z "$lock_cmd" && -x "$HOME/.local/bin/i3lock-color" ]]; then

@@ -75,26 +75,17 @@ fi
 BG="${WALLPAPER_BG:-$(convert "$IMG" -resize 1x1! -format '%[pixel:p{0,0}]' info: 2>/dev/null || echo '#000000')}"
 
 TMP="$(mktemp /tmp/wallpaper-XXXXXX.png)"
-TMP2="$(mktemp /tmp/wallpaper-XXXXXX.png)"
-trap 'rm -f "$TMP" "$TMP2"' EXIT
+trap 'rm -f "$TMP"' EXIT
 
-# 虚拟桌面画布（底色）
-convert -size "${vw}x${vh}" "xc:${BG}" "$TMP"
-
+# 单次 convert 一次性把每块屏 cover 合成到虚拟画布：避免逐屏多次重编码画布
+# cover 缩放：填满该屏，较长边裁掉；居中裁到该屏矩形，避免溢出污染相邻屏
+args=( -size "${vw}x${vh}" "xc:${BG}" )
 for ((i = 0; i < n; i++)); do
   x="${MX[i]}"; y="${MY[i]}"; w="${MW[i]}"; h="${MH[i]}"
-  # cover 缩放：填满该屏，较长边裁掉
-  s="$(awk -v iw="$IW" -v ih="$IH" -v w="$w" -v h="$h" \
-    'BEGIN{printf "%.6f", (w/iw > h/ih) ? w/iw : h/ih}')"
-  rw_px="$(awk -v iw="$IW" -v s="$s" 'BEGIN{printf "%d", iw*s + 0.5}')"
-  rh_px="$(awk -v ih="$IH" -v s="$s" 'BEGIN{printf "%d", ih*s + 0.5}')"
-  # 居中裁到该屏矩形，避免溢出污染相邻屏
-  crop_x="$(awk -v a="$rw_px" -v b="$w" 'BEGIN{printf "%d", (a-b)/2}')"
-  crop_y="$(awk -v a="$rh_px" -v b="$h" 'BEGIN{printf "%d", (a-b)/2}')"
-  convert "$TMP" \
-    \( "$IMG" -resize "${rw_px}x${rh_px}!" -crop "${w}x${h}+${crop_x}+${crop_y}" +repage \) \
-    -geometry "+${x}+${y}" -composite "$TMP2"
-  mv "$TMP2" "$TMP"
+  read -r rw_px rh_px crop_x crop_y < <(awk -v iw="$IW" -v ih="$IH" -v w="$w" -v h="$h" \
+    'BEGIN{s=(w/iw>h/ih)?w/iw:h/ih; rw=int(iw*s+0.5); rh=int(ih*s+0.5); printf "%d %d %d %d", rw, rh, int((rw-w)/2), int((rh-h)/2)}')
+  args+=( \( "$IMG" -resize "${rw_px}x${rh_px}!" -crop "${w}x${h}+${crop_x}+${crop_y}" +repage \) -geometry "+${x}+${y}" -composite )
 done
+convert "${args[@]}" "$TMP"
 
 emit "$TMP"

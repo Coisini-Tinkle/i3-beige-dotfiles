@@ -60,6 +60,15 @@ restart_polybar() {
 apply_external_layout() {
   [[ -x "$layout_script" ]] || return 0
 
+  # Skip if a layout was just applied (e.g. by `dl` or a prior hotplug pass): a
+  # redundant concurrent `layout.sh` would race xrandr/polybar and break the
+  # wallpaper scaling / leave polybar on a single screen.
+  if [[ -f /tmp/display-layout-applied ]]; then
+    local age
+    age="$(($(date +%s) - $(stat -c %Y /tmp/display-layout-applied 2>/dev/null || echo 0)))"
+    [[ "$age" -lt 20 ]] && return 0
+  fi
+
   local output layout
   output="$(current_externals | head -n 1)"
   [[ -z "$output" ]] && return 0

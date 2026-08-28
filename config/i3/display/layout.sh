@@ -173,12 +173,47 @@ restart_polybar() {
 
   [[ -x "$polybar_launcher" ]] || return 0
 
-  bash "$polybar_launcher" >/tmp/polybar-display-layout.log 2>&1 &
+  # nohup + 8>&- 9>&- : detach so the launch survives the calling shell exiting,
+  # and never leak our lock fds (8 = apply lock, 9 = launch.sh's own lock) into it.
+  nohup bash "$polybar_launcher" >/tmp/polybar-display-layout.log 2>&1 </dev/null 8>&- 9>&- &
+  disown 2>/dev/null || true
+}
+
+# Apply a layout: xrandr -> workspace routing -> remember -> wallpaper + polybar.
+# We touch a sentinel so hotplug-watch.sh can skip re-applying the same layout: a
+# redundant concurrent `layout.sh` would race xrandr/polybar and leave the
+# wallpaper wrong (stretched) or polybar on a single screen. The sentinel is
+# preferred over a flock here because routing.sh may `i3-msg reload`, which
+# re-runs i3's exec_always and re-launches hotplug-watch — a lock held across that
+# reload would deadlock the re-launched (nested) layout.sh.
+apply_layout() {
+  local mode="$1" external="${2:-}"
+
+  if [[ "$print_only" -eq 1 ]]; then
+    run_cmd
+    return 0
+  fi
+
+  touch /tmp/display-layout-applied
+
+  run_cmd
+  apply_workspace_routing "$mode" "$external"
+  # Restart polybar BEFORE the (non-critical, occasionally slow) layout memory
+  # step: if get_output_edid's `xrandr --prop` stalls after an i3 reload, we must
+  # not let it block the wallpaper + bar restart.
+  restart_polybar
+  case "$mode" in
+    above|left|right|external-only|mirror)
+      remember_external_layout "$mode" "$external" </dev/null >/dev/null 2>&1 &
+      ;;
+  esac
 }
 
 get_output_edid() {
   local output="$1"
-  xrandr --prop | awk -v target="$output" '
+  # Guard with timeout: right after `i3-msg reload` RandR can momentarily stall
+  # xrandr --prop, and we must never let that wedge the layout application.
+  timeout 8 xrandr --prop | awk -v target="$output" '
     $1 == target { in_output = 1; in_edid = 0; next }
     in_output && $2 ~ /^(connected|disconnected)$/ { exit }
     in_output && $1 == "EDID:" { in_edid = 1; next }
@@ -322,10 +357,7 @@ run_menu() {
   fi
 
   menu_confirm || exit 0
-  "${cmd[@]}"
-  apply_workspace_routing "$selected_mode" "$selected_external"
-  remember_external_layout "$selected_mode" "$selected_external"
-  restart_polybar
+  apply_layout "$selected_mode" "$selected_external"
 }
 
 print_only=0
@@ -350,56 +382,35 @@ case "$mode" in
   above)
     external="$(pick_external)"
     build_cmd above "$external"
-    run_cmd
-    apply_workspace_routing above "$external"
-    remember_external_layout above "$external"
-    restart_polybar
+    apply_layout above "$external"
     ;;
   left)
     external="$(pick_external)"
     build_cmd left "$external"
-    run_cmd
-    apply_workspace_routing left "$external"
-    remember_external_layout left "$external"
-    restart_polybar
+    apply_layout left "$external"
     ;;
   right)
     external="$(pick_external)"
     build_cmd right "$external"
-    run_cmd
-    apply_workspace_routing right "$external"
-    remember_external_layout right "$external"
-    restart_polybar
+    apply_layout right "$external"
     ;;
   external-only)
     external="$(pick_external)"
     build_cmd external-only "$external"
-    run_cmd
-    apply_workspace_routing external-only "$external"
-    remember_external_layout external-only "$external"
-    restart_polybar
+    apply_layout external-only "$external"
     ;;
   mirror)
     external="$(pick_external)"
     build_cmd mirror "$external"
-    run_cmd
-    apply_workspace_routing mirror "$external"
-    remember_external_layout mirror "$external"
-    restart_polybar
+    apply_layout mirror "$external"
     ;;
   recover)
     build_cmd laptop-only
-    run_cmd
-    if [[ "$print_only" -eq 0 ]]; then
-      apply_workspace_routing recover
-      restart_polybar
-    fi
+    apply_layout recover
     ;;
   laptop-only)
     build_cmd laptop-only
-    run_cmd
-    apply_workspace_routing laptop-only
-    restart_polybar
+    apply_layout laptop-only
     ;;
   *)
     usage

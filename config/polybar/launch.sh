@@ -29,7 +29,7 @@ fi
 # Determine monitors BEFORE killing anything. If none are active (e.g. a
 # transient display flap), leave the existing bars alone instead of killing
 # them into a zero-bar gap.
-primary="$(xrandr --listactivemonitors | awk 'NR > 1 && $2 ~ /\*/ { print $NF; exit }')"
+primary="$(xrandr --listactivemonitors | awk 'NR > 1 && $1 ~ /\*/ { print $NF; exit }')"
 others=()
 if [[ -z "$primary" ]]; then
   mapfile -t all < <(xrandr --listactivemonitors | awk 'NR > 1 { print $NF }')

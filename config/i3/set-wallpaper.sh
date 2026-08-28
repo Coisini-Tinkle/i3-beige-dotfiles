@@ -12,7 +12,11 @@
 #
 # 可调环境变量：
 #   WALLPAPER_BG  显示器间未铺满区域（如错位布局）的底色，默认取壁纸平均色
-set -euo pipefail
+# NOTE: deliberately NOT using `set -e`. The multi-monitor path reads geometry via
+# `read ... < <(awk ...)` and uses `(( ... ))` comparisons; both legitimately
+# return non-zero in normal operation, which `set -e` would treat as fatal and
+# abort before the wallpaper is ever emitted (leaving a stale/stretched wallpaper).
+set -uo pipefail
 
 IMG="${1:-}"
 OUT="${2:-}"

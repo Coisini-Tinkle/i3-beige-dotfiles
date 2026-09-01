@@ -1,0 +1,73 @@
+/* waybar 样式 — 复用 beige 色板（对齐 polybar 的 config.ini） */
+* {
+  border: none;
+  border-radius: 0;
+  font-family: "JetBrainsMono Nerd Font Mono", "Noto Sans CJK SC", monospace;
+  font-size: 11px;
+  min-height: 0;
+}
+
+window#waybar {
+  background: #e5e1c8;
+  color: #20201d;
+  border-bottom: 0;
+}
+
+window#waybar.hidden {
+  opacity: 0.9;
+}
+
+#workspaces button {
+  padding: 0 6px;
+  color: #6f6a5c;
+  background: transparent;
+}
+
+#workspaces button.focused {
+  color: #f4f0db;
+  background: #20201d;
+}
+
+#workspaces button.urgent {
+  color: #f4f0db;
+  background: #b86a76;
+}
+
+#workspaces button.active {
+  color: #20201d;
+  background: #cfcab0;
+}
+
+#clock,
+#battery,
+#network,
+#custom-menu {
+  padding: 0 8px;
+  color: #f4f0db;
+  background: #20201d;
+}
+
+#custom-menu {
+  color: #f4f0db;
+  background: #20201d;
+}
+
+#battery.charging {
+  color: #f4f0db;
+  background: #7c886d;
+}
+
+#battery.warning:not(.charging) {
+  background: #b99a57;
+  color: #20201d;
+}
+
+#network.disconnected {
+  color: #6f6a5c;
+}
+
+#tray {
+  background: #e5e1c8;
+  color: #20201d;
+  padding: 0 4px;
+}

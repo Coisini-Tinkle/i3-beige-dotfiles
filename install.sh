@@ -23,6 +23,9 @@ apps=(
   kitty
   gtk-3.0
   systemd/user
+  hypr
+  waybar
+  kanshi
 )
 
 mkdir -p "$config_home"
@@ -70,7 +73,7 @@ fi
 
 # Make scripts executable (operates on repo files directly)
 find "$repo_dir/config/i3" "$repo_dir/config/polybar" "$repo_dir/config/kitty" \
-  "$repo_dir/config/picom" \
+  "$repo_dir/config/picom" "$repo_dir/config/hypr" \
   -type f -name '*.sh' -exec chmod +x {} + 2>/dev/null || true
 
 # --- Restore gitignored local configs from backup (if available) ---

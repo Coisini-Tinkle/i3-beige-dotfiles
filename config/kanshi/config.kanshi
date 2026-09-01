@@ -1,0 +1,20 @@
+# ============================================================
+# kanshi 静态多屏布局（热插拔阶段启用，最小骨架暂不 autostart）
+#
+# 用法（后续阶段）：
+#   exec-once = kanshi
+# 然后此配置会在连接 DP-1 时自动套用 desktop profile。
+#
+# 显示器名以 `hyprctl monitors` 实际输出为准（通常是 eDP-1 / DP-1）。
+# ============================================================
+
+# 仅内屏
+profile internal {
+  output eDP-1 enable mode preferred position 0,0 scale 1
+}
+
+# 内屏 + 外接（静态双屏，外接在右侧）
+profile desktop {
+  output eDP-1 enable mode preferred position 0,0 scale 1
+  output DP-1 enable mode preferred position 1920,0 scale 1
+}

@@ -28,14 +28,16 @@ reboot
 | ------------------- | ------------------------ | ---------------------------------- |
 | 窗口管理            | i3                       | Hyprland                           |
 | 状态栏              | polybar                  | waybar                             |
-| 壁纸                | feh（合成画布）          | swww（逐屏 cover）                 |
-| 锁屏                | i3lock-color             | hyprlock                           |
+| 壁纸                | feh（合成画布）          | swaybg（逐屏 fill，静态）          |
+| 锁屏                | i3lock-color             | swaylock                           |
 | 多屏布局            | xrandr 脚本              | hyprland.conf monitor 行 / kanshi  |
 | 启动器              | rofi                     | wofi（Wayland 原生，源内可直接装） |
 | 截图                | flameshot                | flameshot（已支持 Wayland）        |
 | 剪贴/通知/输入/终端 | copyq/dunst/fcitx5/kitty | 同左（通用）                       |
 
-> ⚠️ **Ubuntu 24.04 默认源不含以下包**：`hyprland`、`swww`、`hyprlock`、`rofi-wayland`、`xdg-desktop-portal-hyprland`。`apt` 直接能装的是 `waybar`、`kanshi`、`wofi`、`grim`、`slurp`、`wl-clipboard`（及 X11 版 `rofi`）。因此 Hyprland 三件套（hyprland/swww/hyprlock）需从 GitHub 预编译 release 下载安装，`xdg-desktop-portal-hyprland` 随 Hyprland 官方 release 一并带上。
+> ⚠️ **Ubuntu 24.04 默认源不含 `hyprland`**（窗口管理器本体必须源码编译），但其余配套几乎都能从 `apt` 直装：`waybar`、`kanshi`、`wofi`、`grim`、`slurp`、`wl-clipboard`、`swaybg`（静态壁纸）、`swaylock`（锁屏）、`xdg-desktop-portal-wlr`（通用 portal 后端）。
+>
+> 因此本方案把原计划的 `swww`/`hyprlock`（这俩 GitHub 也只发源码、需各自编译）替换为源内的 `swaybg`/`swaylock`，既贴合「阶段优先做静态壁纸」的决策，又只需编译 **Hyprland 一个** 即可进桌面。后续若想要动画壁纸/更花哨锁屏，可再源码编译 swww/hyprlock 替换回来。
 
 ## 目录结构（仓库内新增）
 
@@ -43,9 +45,8 @@ reboot
 config/hypr/
   hyprland.conf            # 主配置：monitor/env/binds/exec-once/gaps/门窗规则
   env.conf                 # fcitx5 + portal 环境变量（被 hyprland.conf include）
-  hyprlock.conf            # 锁屏（复用 beige 壁纸）
   scripts/
-    set-wallpaper-hypr.sh  # swww 版，对每块屏独立 cover
+    set-wallpaper-hypr.sh  # swaybg 版，对每块屏独立 fill
     autotiling.sh          # hyprland 版自动平铺（缺 pyautotiling 时 no-op）
 config/waybar/
   config.jsonc             # 模块：workspaces/clock/battery/network/tray/menu
@@ -60,12 +61,12 @@ config/kanshi/
 
 ### 阶段 1 — 能进桌面
 
-- `hyprland.conf` 最小集：`monitor=,preferred,auto,1`（自动多屏）、`exec-once` 启动 waybar/swww/fcitx5/dex、`env` 设 fcitx5 + portal、`$mod` 键位对齐 i3（Mod4 + hjkl + 数字切换 workspace）。
+- `hyprland.conf` 最小集：`monitor=,preferred,auto,1`（自动多屏）、`exec-once` 启动 waybar/swaybg/fcitx5/dex、`env` 设 fcitx5 + portal、`$mod` 键位对齐 i3（Mod4 + hjkl + 数字切换 workspace）。
 - 登录选 `Hyprland` session，确认能进、键位可用。
 
 ### 阶段 2 — 静态多屏壁纸（重灾区，先静态）
 
-- `set-wallpaper-hypr.sh`：用 `swww img --output <每块屏> <同一图>`，swww 每块屏独立 cover（等价于逐屏 cover，但不需要 xrandr 合成画布）。
+- `set-wallpaper-hypr.sh`：用 `swaybg -o <每块屏> -i <同一图> -m fill`，swaybg 每块屏独立 fill（静态，但不需要 xrandr 合成画布）。
 - `hyprland.conf` 里 `exec-once` 调 `set-wallpaper-hypr.sh`。
 - 热插拔自动切换留到下一轮（kanshi / monitor 事件）。
 
@@ -77,7 +78,7 @@ config/kanshi/
 
 ### 阶段 4 — 锁屏 + 输入
 
-- `hyprlock.conf`：背景用 beige 壁纸，配色对齐。
+- `swaylock`：源内直接装，`$mainMod+L` 调用；想要 hyprlock 风格再源码编译替换。
 - fcitx5：在 `env.conf` 设 `GTK_IM_MODULE/QT_IM_MODULE/XMODIFIERS=fcitx` + `exec-once = fcitx5 -d`，验证中文输入。
 
 ## 风险与回退
@@ -86,13 +87,44 @@ config/kanshi/
 | ----------------------------- | -------------------------------------------------------------------------------- |
 | 进不去 Hyprland（显卡/PRIME） | 登录界面保留 i3 入口；不卸载任何 X11 组件                                        |
 | fcitx5 中文失效               | env.conf 单独隔离，仅影响 hyprland 会话                                          |
-| swww 多屏 cover 不预合成      | 静态布局下逐屏 cover 足够；不满意再回「合成画布」思路                            |
+| swaybg 静态无动画             | 阶段优先静态；想要动画壁纸再源码编译 swww 替换                                   |
 | 误改 i3                       | 本方案不碰 i3 文件，`git` 仅新增 `config/hypr`、`config/waybar`、`config/kanshi` |
 
 ## 验证清单
 
 - [ ] 阶段1：`Hyprland` 登录后 `hyprctl monitors` 看到双屏、`hyprctl clients` 正常
-- [ ] 阶段2：双屏各自原生分辨率、壁纸 cover 无拉伸；`hyprctl monitors` 布局正确
+- [ ] 阶段2：双屏各自原生分辨率、壁纸 fill 无拉伸；`hyprctl monitors` 布局正确
 - [ ] 阶段3：waybar 双屏显示、点击 menu 弹 wofi
-- [ ] 阶段4：`hyprlock` 锁屏正常；fcitx5 能打中文
+- [ ] 阶段4：`swaylock` 锁屏正常；fcitx5 能打中文
 - [ ] GRUB：`cat /proc/cmdline` 含 `nvidia-drm.modeset=1`
+
+## 安装命令（Ubuntu 24.04）
+
+```bash
+# 1) 源内包（apt 直装，无需编译）
+sudo apt update
+sudo apt install -y waybar kanshi wofi swaybg swaylock \
+  grim slurp wl-clipboard xdg-desktop-portal-wlr \
+  jq fcitx5 copyq dunst dex
+
+# 2) 仅 Hyprland 需源码编译（官方脚本会自动装构建依赖并编译安装）
+sudo apt install -y git cmake meson ninja-build pkg-config libssl-dev
+git clone --depth 1 --branch v0.56.2 https://github.com/hyprwm/Hyprland.git /tmp/Hyprland
+cd /tmp/Hyprland
+meson setup build
+ninja -C build
+sudo ninja -C build install
+cd / && rm -rf /tmp/Hyprland
+
+# 3) GRUB 开启 nvidia-drm.modeset=1（唯一系统级改动，需 sudo，重启生效）
+sudo sed -i 's/^\(GRUB_CMDLINE_LINUX=".*\)"/\1 nvidia-drm.modeset=1/' /etc/default/grub
+sudo update-grub
+
+# 4) 软链本仓库配置到 ~/.config（install.sh 已做，可重跑）
+bash install.sh
+
+# 5) 重启后登录界面选 Hyprland session
+sudo reboot
+```
+
+> 后续若想要动画壁纸/更花哨锁屏：源码编译 `swww` 与 `hyprlock` 替换 `swaybg`/`swaylock` 即可（改 `set-wallpaper-hypr.sh` 与 `$mainMod+L` 绑定）。

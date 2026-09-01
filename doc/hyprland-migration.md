@@ -107,13 +107,11 @@ sudo apt install -y waybar kanshi wofi swaybg swaylock \
   grim slurp wl-clipboard xdg-desktop-portal-wlr \
   jq fcitx5 copyq dunst dex
 
-# 2) 仅 Hyprland 需源码编译（官方脚本会自动装构建依赖并编译安装）
-sudo apt install -y git cmake meson ninja-build pkg-config libssl-dev
+# 2) 仅 Hyprland 需源码编译（官方 install.sh 会自动装所有 -dev 构建依赖并编译安装）
+sudo apt install -y git
 git clone --depth 1 --branch v0.56.2 https://github.com/hyprwm/Hyprland.git /tmp/Hyprland
 cd /tmp/Hyprland
-meson setup build
-ninja -C build
-sudo ninja -C build install
+./install.sh          # 自动 apt 装依赖 + 编译 + 安装（需要 sudo 权限）
 cd / && rm -rf /tmp/Hyprland
 
 # 3) GRUB 开启 nvidia-drm.modeset=1（唯一系统级改动，需 sudo，重启生效）

@@ -24,16 +24,18 @@ reboot
 
 ## 工具选型（主流组合）
 
-| 用途                | X11(i3)                  | Wayland(Hyprland)                 |
-| ------------------- | ------------------------ | --------------------------------- |
-| 窗口管理            | i3                       | Hyprland                          |
-| 状态栏              | polybar                  | waybar                            |
-| 壁纸                | feh（合成画布）          | swww（逐屏 cover）                |
-| 锁屏                | i3lock-color             | hyprlock                          |
-| 多屏布局            | xrandr 脚本              | hyprland.conf monitor 行 / kanshi |
-| 启动器              | rofi                     | rofi-wayland                      |
-| 截图                | flameshot                | flameshot（已支持 Wayland）       |
-| 剪贴/通知/输入/终端 | copyq/dunst/fcitx5/kitty | 同左（通用）                      |
+| 用途                | X11(i3)                  | Wayland(Hyprland)                  |
+| ------------------- | ------------------------ | ---------------------------------- |
+| 窗口管理            | i3                       | Hyprland                           |
+| 状态栏              | polybar                  | waybar                             |
+| 壁纸                | feh（合成画布）          | swww（逐屏 cover）                 |
+| 锁屏                | i3lock-color             | hyprlock                           |
+| 多屏布局            | xrandr 脚本              | hyprland.conf monitor 行 / kanshi  |
+| 启动器              | rofi                     | wofi（Wayland 原生，源内可直接装） |
+| 截图                | flameshot                | flameshot（已支持 Wayland）        |
+| 剪贴/通知/输入/终端 | copyq/dunst/fcitx5/kitty | 同左（通用）                       |
+
+> ⚠️ **Ubuntu 24.04 默认源不含以下包**：`hyprland`、`swww`、`hyprlock`、`rofi-wayland`、`xdg-desktop-portal-hyprland`。`apt` 直接能装的是 `waybar`、`kanshi`、`wofi`、`grim`、`slurp`、`wl-clipboard`（及 X11 版 `rofi`）。因此 Hyprland 三件套（hyprland/swww/hyprlock）需从 GitHub 预编译 release 下载安装，`xdg-desktop-portal-hyprland` 随 Hyprland 官方 release 一并带上。
 
 ## 目录结构（仓库内新增）
 
@@ -69,7 +71,7 @@ config/kanshi/
 
 ### 阶段 3 — waybar
 
-- 移植 polybar 核心模块：workspaces（wlr/workspaces）、clock、battery、network、tray、menu（点开 rofi-wayland）。
+- 移植 polybar 核心模块：workspaces（wlr/workspaces）、clock、battery、network、tray、menu（点开 wofi）。
 - `style.css` 直接复用 beige 色板（`#e5e1c8` 底 / `#20201d` 字 / `#6d8d87` 强调）。
 - 跳过：picom-status（hyprland 无 picom）、vm-status/control-center（后续迭代）。
 
@@ -91,6 +93,6 @@ config/kanshi/
 
 - [ ] 阶段1：`Hyprland` 登录后 `hyprctl monitors` 看到双屏、`hyprctl clients` 正常
 - [ ] 阶段2：双屏各自原生分辨率、壁纸 cover 无拉伸；`hyprctl monitors` 布局正确
-- [ ] 阶段3：waybar 双屏显示、点击 menu 弹 rofi-wayland
+- [ ] 阶段3：waybar 双屏显示、点击 menu 弹 wofi
 - [ ] 阶段4：`hyprlock` 锁屏正常；fcitx5 能打中文
 - [ ] GRUB：`cat /proc/cmdline` 含 `nvidia-drm.modeset=1`

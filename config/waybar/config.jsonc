@@ -10,7 +10,7 @@
   "custom/menu": {
     "format": "  󰣛  ",
     "tooltip": false,
-    "on-click": "rofi -show drun"
+    "on-click": "wofi --show drun"
   },
 
   "wlr/workspaces": {

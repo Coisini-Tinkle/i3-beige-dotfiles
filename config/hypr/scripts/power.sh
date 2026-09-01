@@ -3,7 +3,7 @@
 # 选中后执行对应动作。
 set -uo pipefail
 
-choice="$(echo -e "logout\nreboot\nshutdown" | rofi -dmenu -p "power" 2>/dev/null)"
+choice="$(echo -e "logout\nreboot\nshutdown" | wofi --dmenu -p "power" 2>/dev/null)"
 case "$choice" in
   logout)   hyprctl dispatch exit ;;
   reboot)   systemctl reboot ;;

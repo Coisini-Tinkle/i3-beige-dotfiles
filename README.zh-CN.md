@@ -28,30 +28,30 @@
 
 这套桌面效果由以下应用协同实现：
 
-| 应用 | 在本配置中的作用 | 是否必需 |
-| --- | --- | --- |
-| `i3` | 窗口管理、gaps、边框、工作区规则、快捷键 | 必需 |
-| `polybar` | 顶部浮动栏、时间胶囊、工作区圆点、系统模块、托盘 | 必需 |
-| `picom` | 阴影、圆角、透明度、模糊、淡入淡出动画 | 必需 |
-| `rofi` | 应用启动器、电源菜单、Wi-Fi 菜单、控制中心 UI | 必需 |
-| `kitty` | 主题终端、下拉终端、随机背景图 | 必需 |
-| `feh` | 设置桌面壁纸 | 必需 |
-| `gjs` | 自定义通知 daemon 和下拉通知面板 | 必需 |
-| `dunst` | 备用/参考通知配置；启动时会被 GJS daemon 替换 | 可选 |
-| `i3lock` / `i3lock-color` | 锁屏渲染；`i3lock-color` 支持放大圆环指示器 | 必需 |
-| `xss-lock` | 将休眠/睡眠锁屏接入 i3lock | 推荐 |
-| `jq` | 解析 i3 workspace/output JSON，用于路由和 polybar 指示器 | 必需 |
-| `xrandr` | 显示器检测和布局切换 | 必需 |
-| `imagemagick` | 通过 `convert` 生成锁屏图片尺寸 | 必需 |
-| `NetworkManager` / `nmcli` / `nm-applet` | Wi-Fi 菜单和网络托盘 | 推荐 |
-| `blueman` | 蓝牙托盘和控制中心状态 | 推荐 |
-| `pasystray` | 音频托盘 | 推荐 |
-| `power-profiles-daemon` | polybar 电源模式模块 | 推荐 |
-| `copyq` | 剪贴板 daemon 和浮动剪贴板窗口规则 | 可选 |
-| `flameshot` | 截图快捷键 | 可选 |
-| `brightnessctl` | 亮度快捷键 | 可选 |
-| `fcitx5` | 输入法启动 | 可选 |
-| `dex` | 在 i3 中加载 XDG autostart | 可选 |
+| 应用                                     | 在本配置中的作用                                         | 是否必需 |
+| ---------------------------------------- | -------------------------------------------------------- | -------- |
+| `i3`                                     | 窗口管理、gaps、边框、工作区规则、快捷键                 | 必需     |
+| `polybar`                                | 顶部浮动栏、时间胶囊、工作区圆点、系统模块、托盘         | 必需     |
+| `picom`                                  | 阴影、圆角、透明度、模糊、淡入淡出动画                   | 必需     |
+| `rofi`                                   | 应用启动器、电源菜单、Wi-Fi 菜单、控制中心 UI            | 必需     |
+| `kitty`                                  | 主题终端、随机背景图                                     | 必需     |
+| `feh`                                    | 设置桌面壁纸                                             | 必需     |
+| `gjs`                                    | 自定义通知 daemon 和下拉通知面板                         | 必需     |
+| `dunst`                                  | 备用/参考通知配置；启动时会被 GJS daemon 替换            | 可选     |
+| `i3lock` / `i3lock-color`                | 锁屏渲染；`i3lock-color` 支持放大圆环指示器              | 必需     |
+| `xss-lock`                               | 将休眠/睡眠锁屏接入 i3lock                               | 推荐     |
+| `jq`                                     | 解析 i3 workspace/output JSON，用于路由和 polybar 指示器 | 必需     |
+| `xrandr`                                 | 显示器检测和布局切换                                     | 必需     |
+| `imagemagick`                            | 通过 `convert` 生成锁屏图片尺寸                          | 必需     |
+| `NetworkManager` / `nmcli` / `nm-applet` | Wi-Fi 菜单和网络托盘                                     | 推荐     |
+| `blueman`                                | 蓝牙托盘和控制中心状态                                   | 推荐     |
+| `pasystray`                              | 音频托盘                                                 | 推荐     |
+| `power-profiles-daemon`                  | polybar 电源模式模块                                     | 推荐     |
+| `copyq`                                  | 剪贴板 daemon 和浮动剪贴板窗口规则                       | 可选     |
+| `flameshot`                              | 截图快捷键                                               | 可选     |
+| `brightnessctl`                          | 亮度快捷键                                               | 可选     |
+| `fcitx5`                                 | 输入法启动                                               | 可选     |
+| `dex`                                    | 在 i3 中加载 XDG autostart                               | 可选     |
 
 ## 预览
 
@@ -169,7 +169,6 @@ config/
 │   ├── config                  ← i3 主配置
 │   ├── theme-switcher.sh       ← 主题引擎
 │   ├── lock.sh                 ← 锁屏
-│   ├── dropdown-terminal.sh    ← kitty 下拉终端
 │   ├── tray.sh                 ← 系统托盘启动
 │   ├── themes/                 ← 主题定义（详见下文）
 │   ├── display/                ← 显示器 & 工作区路由
@@ -208,6 +207,7 @@ ACCENT="#ca7081"
 ```
 
 `theme-switcher.sh apply <主题名>` 读取色板后生成：
+
 - `i3-colors.conf` — i3 窗口边框/标题栏配色
 - `kitty.conf` — 终端背景、前景、光标配色
 - polybar 颜色块 — 直接替换 `config/polybar/config.ini` 中的 `[colors]` 段落

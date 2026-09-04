@@ -26,7 +26,7 @@ flowchart TB
     I3 --> Compositor["picom<br/>阴影 / 圆角 / 透明 / 模糊"]
     I3 --> Bar["polybar<br/>顶部状态栏"]
     I3 --> Launcher["rofi<br/>启动器 / 菜单 / 控制中心"]
-    I3 --> Terminal["kitty<br/>普通终端 / 下拉终端"]
+    I3 --> Terminal["kitty<br/>普通终端"]
     I3 --> Notify["gjs notification daemon<br/>自定义通知"]
     I3 --> Lock["xss-lock + i3lock<br/>锁屏"]
     I3 --> Routing["workspace/display scripts<br/>工作区和显示器自动化"]
@@ -53,17 +53,17 @@ flowchart LR
 
 ## 核心组件速查
 
-| app | 负责什么 | 出问题时的表现 |
-| --- | --- | --- |
-| `i3` | 窗口平铺、浮动、快捷键、工作区、启动其他服务 | 窗口布局、快捷键、工作区都异常 |
-| `polybar` | 顶部状态栏、时间、工作区圆点、CPU、内存、电池、Wi-Fi、托盘 | 顶部栏消失，系统状态不显示 |
-| `picom` | 合成器，负责阴影、圆角、透明、模糊、动画 | 窗口变硬，没有圆角/阴影/模糊 |
-| `rofi` | 弹出菜单：应用启动器、电源菜单、Wi-Fi、控制中心 | 菜单打不开或样式不对 |
-| `kitty` | 终端，包含普通终端和下拉终端 | `Super+Enter` 或下拉终端打不开 |
-| `feh` | 设置壁纸 | 壁纸不对或没有壁纸 |
-| `gjs` | 运行 JavaScript 桌面小程序，这里负责自定义通知 | 通知不弹出或通知面板异常 |
-| `xrandr` | 查询和设置显示器布局 | 显示器切换、外屏位置不对 |
-| `jq` | 解析 i3 输出的 JSON | 工作区脚本、polybar 工作区圆点异常 |
+| app       | 负责什么                                                   | 出问题时的表现                     |
+| --------- | ---------------------------------------------------------- | ---------------------------------- |
+| `i3`      | 窗口平铺、浮动、快捷键、工作区、启动其他服务               | 窗口布局、快捷键、工作区都异常     |
+| `polybar` | 顶部状态栏、时间、工作区圆点、CPU、内存、电池、Wi-Fi、托盘 | 顶部栏消失，系统状态不显示         |
+| `picom`   | 合成器，负责阴影、圆角、透明、模糊、动画                   | 窗口变硬，没有圆角/阴影/模糊       |
+| `rofi`    | 弹出菜单：应用启动器、电源菜单、Wi-Fi、控制中心            | 菜单打不开或样式不对               |
+| `kitty`   | 终端，随机背景图                                           | `Super+Enter` 打不开               |
+| `feh`     | 设置壁纸                                                   | 壁纸不对或没有壁纸                 |
+| `gjs`     | 运行 JavaScript 桌面小程序，这里负责自定义通知             | 通知不弹出或通知面板异常           |
+| `xrandr`  | 查询和设置显示器布局                                       | 显示器切换、外屏位置不对           |
+| `jq`      | 解析 i3 输出的 JSON                                        | 工作区脚本、polybar 工作区圆点异常 |
 
 ## i3 是调度器
 
@@ -130,17 +130,17 @@ flowchart LR
 
 当前模块：
 
-| 模块 | 作用 | 来源 |
-| --- | --- | --- |
-| `menu` | 左侧图标，点击打开 rofi 应用启动器 | `config.ini` |
-| `workspaces` | 工作区圆点 | `polybar/scripts/i3-workspaces.sh` |
-| `date` | 中间时间胶囊 | polybar 内置 date |
-| `memory` | 内存占用 | polybar 内置 memory |
-| `cpu` | CPU 占用 | polybar 内置 cpu |
-| `battery` | 电池状态 | polybar 内置 battery |
-| `power-profile` | 电源模式 | `polybar/scripts/power-profile.sh` |
-| `wlan` | Wi-Fi 状态 | polybar 内置 network |
-| `tray` | 系统托盘 | polybar 内置 tray |
+| 模块            | 作用                               | 来源                               |
+| --------------- | ---------------------------------- | ---------------------------------- |
+| `menu`          | 左侧图标，点击打开 rofi 应用启动器 | `config.ini`                       |
+| `workspaces`    | 工作区圆点                         | `polybar/scripts/i3-workspaces.sh` |
+| `date`          | 中间时间胶囊                       | polybar 内置 date                  |
+| `memory`        | 内存占用                           | polybar 内置 memory                |
+| `cpu`           | CPU 占用                           | polybar 内置 cpu                   |
+| `battery`       | 电池状态                           | polybar 内置 battery               |
+| `power-profile` | 电源模式                           | `polybar/scripts/power-profile.sh` |
+| `wlan`          | Wi-Fi 状态                         | polybar 内置 network               |
+| `tray`          | 系统托盘                           | polybar 内置 tray                  |
 
 顶部栏不见时，先看：
 
@@ -201,12 +201,12 @@ flowchart TB
 
 常见入口：
 
-| 入口 | 作用 |
-| --- | --- |
-| `Mod1+Space` | 应用启动器 |
-| `Super+Escape` | 电源菜单 |
+| 入口               | 作用       |
+| ------------------ | ---------- |
+| `Mod1+Space`       | 应用启动器 |
+| `Super+Escape`     | 电源菜单   |
 | 点击 polybar Wi-Fi | Wi-Fi 菜单 |
-| 点击控制中心模块 | 控制中心 |
+| 点击控制中心模块   | 控制中心   |
 
 如果菜单能打开但样式不对，看：
 
@@ -272,28 +272,12 @@ flowchart LR
     Kitty --> Config["kitty.conf"]
 ```
 
-下拉终端是另一条链：
-
-```mermaid
-flowchart LR
-    Key["Super+grave"] --> Script["dropdown-terminal.sh"]
-    Script --> Class["kitty --class kitty-dropdown"]
-    Class --> Rule["i3 for_window 规则<br/>浮动 / 居中 / 固定尺寸"]
-```
-
 终端打不开时，先看：
 
 ```text
 ~/.config/kitty/kitty-random.sh
 ~/.config/kitty/random-bg.sh
 ~/.config/kitty/kitty.conf
-```
-
-下拉终端异常时，先看：
-
-```text
-~/.config/i3/dropdown-terminal.sh
-i3 config 里的 kitty-dropdown 规则
 ```
 
 ## 显示器和工作区
@@ -314,14 +298,14 @@ flowchart TB
 
 相关文件：
 
-| 文件 | 作用 |
-| --- | --- |
-| `display-layout.sh` | 手动切换外屏在左/右/上、仅外屏、镜像、仅内屏 |
-| `display-hotplug-watch.sh` | 监听显示器插拔，自动恢复布局 |
-| `workspace-routing.sh` | 根据当前显示器生成工作区输出规则 |
-| `switch-workspace-fixed-output.sh` | 按工作区编号切换，并把工作区放到预期屏幕 |
-| `workspace-output-routing.conf` | 运行时生成的 i3 workspace output 规则 |
-| `display-layouts.conf` | 运行时保存的显示器布局偏好 |
+| 文件                               | 作用                                         |
+| ---------------------------------- | -------------------------------------------- |
+| `display-layout.sh`                | 手动切换外屏在左/右/上、仅外屏、镜像、仅内屏 |
+| `display-hotplug-watch.sh`         | 监听显示器插拔，自动恢复布局                 |
+| `workspace-routing.sh`             | 根据当前显示器生成工作区输出规则             |
+| `switch-workspace-fixed-output.sh` | 按工作区编号切换，并把工作区放到预期屏幕     |
+| `workspace-output-routing.conf`    | 运行时生成的 i3 workspace output 规则        |
+| `display-layouts.conf`             | 运行时保存的显示器布局偏好                   |
 
 这两个文件是本机状态，不应该提交到 Git：
 
@@ -389,19 +373,18 @@ flowchart TB
 
 快速表格：
 
-| 现象 | 先看哪里 |
-| --- | --- |
-| 顶部栏没有了 | `polybar/launch.sh`、`polybar/config.ini`、`/tmp/polybar-main.log` |
-| 窗口没有圆角/阴影 | `systemctl --user status picom.service picom-power-watch.service`、`picom-launcher.sh`、`picom-full.conf`、`/tmp/picom.log` |
-| 壁纸没设置 | `feh`、`themes/beige/wallpaper.png` |
-| rofi 菜单打不开 | `rofi` 是否安装、对应 `rofi-*.sh` |
-| 通知不显示 | `notification-daemon.js`、`notification-drop-panel.js`、`/tmp/notification-daemon.log` |
-| 终端打不开 | `kitty-random.sh`、`kitty.conf` |
-| 下拉终端不对 | `dropdown-terminal.sh`、i3 里的 `kitty-dropdown` 规则 |
-| 工作区跑错屏幕 | `workspace-routing.sh`、`workspace-output-routing.conf` |
-| 插拔显示器后布局不对 | `display-hotplug-watch.sh`、`display-layout.sh` |
-| Wi-Fi 菜单不工作 | `nmcli`、`rofi-wifi-menu.sh` |
-| 电源模式不显示 | `powerprofilesctl`、`polybar/scripts/power-profile.sh` |
+| 现象                 | 先看哪里                                                                                                                    |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| 顶部栏没有了         | `polybar/launch.sh`、`polybar/config.ini`、`/tmp/polybar-main.log`                                                          |
+| 窗口没有圆角/阴影    | `systemctl --user status picom.service picom-power-watch.service`、`picom-launcher.sh`、`picom-full.conf`、`/tmp/picom.log` |
+| 壁纸没设置           | `feh`、`themes/beige/wallpaper.png`                                                                                         |
+| rofi 菜单打不开      | `rofi` 是否安装、对应 `rofi-*.sh`                                                                                           |
+| 通知不显示           | `notification-daemon.js`、`notification-drop-panel.js`、`/tmp/notification-daemon.log`                                      |
+| 终端打不开           | `kitty-random.sh`、`kitty.conf`                                                                                             |
+| 工作区跑错屏幕       | `workspace-routing.sh`、`workspace-output-routing.conf`                                                                     |
+| 插拔显示器后布局不对 | `display-hotplug-watch.sh`、`display-layout.sh`                                                                             |
+| Wi-Fi 菜单不工作     | `nmcli`、`rofi-wifi-menu.sh`                                                                                                |
+| 电源模式不显示       | `powerprofilesctl`、`polybar/scripts/power-profile.sh`                                                                      |
 
 ## 最后再记一次
 
@@ -411,7 +394,7 @@ flowchart TB
     Root --> B["polybar<br/>顶部栏 / 工作区圆点 / 系统状态"]
     Root --> C["picom<br/>阴影 / 圆角 / 模糊"]
     Root --> D["rofi<br/>启动器 / 电源菜单 / Wi-Fi 菜单 / 控制中心"]
-    Root --> E["kitty<br/>普通终端 / 下拉终端 / 背景图"]
+    Root --> E["kitty<br/>普通终端 / 背景图"]
     Root --> F["gjs<br/>通知 daemon / 通知面板"]
     Root --> G["scripts<br/>显示器 / 工作区 / 启动器"]
 ```

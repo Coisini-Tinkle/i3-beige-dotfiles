@@ -27,7 +27,6 @@ for_window [class="^ToDesk$"] floating enable, border pixel 0, sticky enable
 for_window [class="^ToDesk$" title="^ToDesk$"] move scratchpad
 for_window [class="^copyq$"] floating enable, border pixel 1, move position center, resize set 960 640
 for_window [class="^kitty-float$"] floating enable, border pixel 1, move position center, resize set 960 640
-for_window [class="^kitty-dropdown$"] floating enable, sticky enable, border pixel 1, move position center, resize set 1400 720
 for_window [class="^notification-drop-panel$"] floating enable, sticky enable, border pixel 0
 
 # Theme colors first — overridden below for focus visibility
@@ -74,6 +73,7 @@ bindsym $mod+Return exec $terminal
 bindsym Mod1+space exec --no-startup-id $launcher
 bindsym Ctrl+Mod1+space exec --no-startup-id $launcher
 bindsym $mod+l exec --no-startup-id bash /home/coisini/.config/i3/lock.sh
+bindsym $mod+e exec --no-startup-id nemo
 bindsym $mod+q kill
 bindsym $mod+Escape exec --no-startup-id bash /home/coisini/.config/i3/rofi/power.sh
 bindsym Ctrl+grave exec --no-startup-id sh -c 'command -v copyq >/dev/null && copyq toggle'
@@ -107,13 +107,14 @@ bindsym $mod+Ctrl+v split v
 bindsym $mod+f fullscreen toggle
 bindsym $mod+s layout stacking
 bindsym $mod+w layout tabbed
-bindsym $mod+e layout toggle split
 bindsym $mod+Ctrl+space focus mode_toggle
 bindsym $mod+Shift+space floating toggle
 bindsym $mod+a focus parent
 
 bindsym $mod+minus scratchpad show
 bindsym $mod+Shift+minus move scratchpad
+
+bindsym $mod+Tab workspace back_and_forth
 
 bindsym $mod+1 exec --no-startup-id bash /home/coisini/.config/i3/display/switch-fixed-output.sh external 1
 bindsym $mod+2 exec --no-startup-id bash /home/coisini/.config/i3/display/switch-fixed-output.sh external 2

@@ -24,30 +24,30 @@ It includes coordinated configs for:
 
 These are the apps that work together to create the full desktop effect:
 
-| App | Role in this setup | Required |
-| --- | --- | --- |
-| `i3` | Window manager, gaps, borders, workspace rules, keybindings | Yes |
-| `polybar` | Floating top bar, date island, workspace dots, system modules, tray | Yes |
-| `picom` | Shadows, rounded corners, opacity, blur, fade animations | Yes |
-| `rofi` | App launcher, power menu, Wi-Fi menu, control center UI | Yes |
-| `kitty` | Themed terminal, dropdown terminal, random background image | Yes |
-| `feh` | Wallpaper setter | Yes |
-| `gjs` | Custom notification daemon and drop-down notification panel | Yes |
-| `dunst` | Fallback/reference notification config; replaced at startup by the GJS daemon | Optional |
-| `i3lock` / `i3lock-color` | Lock screen renderer; `i3lock-color` enables larger ring indicators | Yes |
-| `xss-lock` | Hooks suspend/sleep locking into i3lock | Recommended |
-| `jq` | Parses i3 workspace/output JSON for routing and polybar indicators | Yes |
-| `xrandr` | Display detection and layout switching | Yes |
-| `imagemagick` | Generates the lock-screen image size via `convert` | Yes |
-| `NetworkManager` / `nmcli` / `nm-applet` | Wi-Fi menu and tray network applet | Recommended |
-| `blueman` | Bluetooth tray applet and control center status | Recommended |
-| `pasystray` | Audio tray applet | Recommended |
-| `power-profiles-daemon` | Polybar power profile module | Recommended |
-| `copyq` | Clipboard daemon and floating clipboard window rule | Optional |
-| `flameshot` | Screenshot keybindings | Optional |
-| `brightnessctl` | Brightness keybindings | Optional |
-| `fcitx5` | Input method startup | Optional |
-| `dex` | XDG autostart support inside i3 | Optional |
+| App                                      | Role in this setup                                                            | Required    |
+| ---------------------------------------- | ----------------------------------------------------------------------------- | ----------- |
+| `i3`                                     | Window manager, gaps, borders, workspace rules, keybindings                   | Yes         |
+| `polybar`                                | Floating top bar, date island, workspace dots, system modules, tray           | Yes         |
+| `picom`                                  | Shadows, rounded corners, opacity, blur, fade animations                      | Yes         |
+| `rofi`                                   | App launcher, power menu, Wi-Fi menu, control center UI                       | Yes         |
+| `kitty`                                  | Themed terminal, random background image                                      | Yes         |
+| `feh`                                    | Wallpaper setter                                                              | Yes         |
+| `gjs`                                    | Custom notification daemon and drop-down notification panel                   | Yes         |
+| `dunst`                                  | Fallback/reference notification config; replaced at startup by the GJS daemon | Optional    |
+| `i3lock` / `i3lock-color`                | Lock screen renderer; `i3lock-color` enables larger ring indicators           | Yes         |
+| `xss-lock`                               | Hooks suspend/sleep locking into i3lock                                       | Recommended |
+| `jq`                                     | Parses i3 workspace/output JSON for routing and polybar indicators            | Yes         |
+| `xrandr`                                 | Display detection and layout switching                                        | Yes         |
+| `imagemagick`                            | Generates the lock-screen image size via `convert`                            | Yes         |
+| `NetworkManager` / `nmcli` / `nm-applet` | Wi-Fi menu and tray network applet                                            | Recommended |
+| `blueman`                                | Bluetooth tray applet and control center status                               | Recommended |
+| `pasystray`                              | Audio tray applet                                                             | Recommended |
+| `power-profiles-daemon`                  | Polybar power profile module                                                  | Recommended |
+| `copyq`                                  | Clipboard daemon and floating clipboard window rule                           | Optional    |
+| `flameshot`                              | Screenshot keybindings                                                        | Optional    |
+| `brightnessctl`                          | Brightness keybindings                                                        | Optional    |
+| `fcitx5`                                 | Input method startup                                                          | Optional    |
+| `dex`                                    | XDG autostart support inside i3                                               | Optional    |
 
 ## Preview
 
@@ -165,7 +165,6 @@ config/
 │   ├── config                  ← main i3 config
 │   ├── theme-switcher.sh       ← theme engine
 │   ├── lock.sh                 ← lock screen
-│   ├── dropdown-terminal.sh    ← kitty dropdown terminal
 │   ├── tray.sh                 ← system tray startup
 │   ├── themes/                 ← theme definitions (see below)
 │   ├── display/                ← monitor & workspace routing
@@ -204,6 +203,7 @@ ACCENT="#ca7081"
 ```
 
 `theme-switcher.sh apply <theme>` reads the palette and generates:
+
 - `i3-colors.conf` — i3 window border / title bar colors
 - `kitty.conf` — terminal background, foreground, cursor colors
 - polybar color block — inline replacement in `config/polybar/config.ini`

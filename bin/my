@@ -1,0 +1,306 @@
+#!/usr/bin/env bash
+#
+# my — 临时保持屏幕常亮、阻止 idle 休眠，并在终端输出模拟训练日志。
+#
+# 安全设计（重点，勿随意简化）：
+#   * 仅临时修改 X11 screensaver / DPMS，退出时按“启动前快照”逐项恢复。
+#   * 用 systemd-inhibit 阻止 idle/sleep，抑制锁随进程死亡自动释放。
+#   * 用 setsid 守护子进程：主进程一旦异常死亡（含 kill -9、终端被关），
+#     由守护按快照恢复 xset 并清理抑制进程，杜绝“永不锁屏”残留。
+#   * 不修改 /etc 或任何 shell 配置，不杀 xss-lock 等无关进程。
+#
+set -uo pipefail
+
+SELF="$(readlink -f "${BASH_SOURCE[0]}")"
+STATE_DIR="${XDG_RUNTIME_DIR:-/tmp}/my"
+STATE_FILE="$STATE_DIR/xset.state"
+INHIBIT_PID_FILE="$STATE_DIR/inhibit.pid"
+
+log() { printf '[my] %s\n' "$*" >&2; }
+
+# ---------------------------------------------------------------------------
+# xset 状态：捕获 / 恢复 / 临时禁用
+# ---------------------------------------------------------------------------
+capture_xset() {
+  local out
+  if ! out="$(xset q 2>/dev/null)"; then
+    log "无法读取 X 设置（DISPLAY 未就绪），退出。"
+    exit 1
+  fi
+
+  local ss_timeout ss_cycle ss_blank dpms_enabled=no dpms_standby dpms_suspend dpms_off
+  ss_timeout="$(sed -n 's/^ *timeout: *\([0-9]\+\).*/\1/p' <<<"$out" | head -n1)"
+  ss_cycle="$(sed -n 's/^ *timeout: *[0-9]\+ *cycle: *\([0-9]\+\).*/\1/p' <<<"$out" | head -n1)"
+  ss_blank="$(sed -n 's/^ *prefer blanking: *\(yes\|no\).*/\1/p' <<<"$out" | head -n1)"
+  if grep -q 'DPMS is Enabled' <<<"$out"; then dpms_enabled=yes; fi
+  dpms_standby="$(sed -n 's/.*Standby: *\([0-9]\+\).*/\1/p' <<<"$out" | head -n1)"
+  dpms_suspend="$(sed -n 's/.*Suspend: *\([0-9]\+\).*/\1/p' <<<"$out" | head -n1)"
+  dpms_off="$(sed -n 's/.*Off: *\([0-9]\+\).*/\1/p' <<<"$out" | head -n1)"
+
+  mkdir -p "$STATE_DIR"
+  cat >"$STATE_FILE" <<EOF
+SS_TIMEOUT=${ss_timeout:-0}
+SS_CYCLE=${ss_cycle:-0}
+SS_BLANK=${ss_blank:-yes}
+DPMS_ENABLED=${dpms_enabled}
+DPMS_STANDBY=${dpms_standby}
+DPMS_SUSPEND=${dpms_suspend}
+DPMS_OFF=${dpms_off}
+EOF
+}
+
+restore_xset() {
+  [[ -f "$STATE_FILE" ]] || return 0
+  # shellcheck disable=SC1090
+  source "$STATE_FILE"
+
+  if [[ "${SS_BLANK:-yes}" == yes ]]; then
+    xset s blank
+  else
+    xset s noblank
+  fi
+  if (( ${SS_TIMEOUT:-0} > 0 )); then
+    xset s "${SS_TIMEOUT}" "${SS_CYCLE}"
+  else
+    xset s off
+  fi
+  if [[ -n "${DPMS_STANDBY:-}" && -n "${DPMS_SUSPEND:-}" && -n "${DPMS_OFF:-}" ]]; then
+    xset dpms "${DPMS_STANDBY}" "${DPMS_SUSPEND}" "${DPMS_OFF}"
+  else
+    log "DPMS 计时器快照不完整，跳过恢复（保持当前计时器不变）。"
+  fi
+  if [[ "${DPMS_ENABLED:-yes}" == yes ]]; then
+    xset +dpms
+  else
+    xset -dpms
+  fi
+}
+
+disable_xset() {
+  xset s off
+  xset -dpms
+}
+
+# ---------------------------------------------------------------------------
+# systemd-inhibit：阻止 idle / sleep（抑制随进程死亡自动释放）
+# ---------------------------------------------------------------------------
+start_inhibitor() {
+  if ! command -v systemd-inhibit >/dev/null 2>&1; then
+    log "未找到 systemd-inhibit，跳过 sleep 抑制。"
+    return 0
+  fi
+
+  local what="idle:sleep"
+  if [[ "${MY_BLOCK_LID:-0}" == 1 ]]; then
+    if systemd-inhibit --what=handle-lid-switch --mode=block --why=my-probe true >/dev/null 2>&1; then
+      what="idle:sleep:handle-lid-switch"
+    else
+      log "无法阻止合盖挂起（权限不足），仅阻止 idle/sleep。"
+    fi
+  fi
+
+  if ! systemd-inhibit --what="$what" --mode=block --why=my-probe true >/dev/null 2>&1; then
+    log "systemd-inhibit 被拒绝，跳过 sleep 抑制。"
+    return 0
+  fi
+
+  local runner=()
+  if command -v setsid >/dev/null 2>&1; then runner=(setsid); fi
+  "${runner[@]}" systemd-inhibit --what="$what" --mode=block \
+    --why="my: keep display awake and block idle sleep" sleep infinity \
+    </dev/null >/dev/null 2>&1 &
+  printf '%s\n' "$!" >"$INHIBIT_PID_FILE"
+  log "已阻止 idle/sleep（systemd-inhibit: $what）。"
+}
+
+kill_inhibitor() {
+  local pid=''
+  if [[ -f "$INHIBIT_PID_FILE" ]]; then
+    pid="$(<"$INHIBIT_PID_FILE")"
+  fi
+  if [[ -n "$pid" ]]; then
+    kill -TERM -- "-$pid" 2>/dev/null || kill -TERM "$pid" 2>/dev/null || true
+    pkill -TERM -P "$pid" 2>/dev/null || true
+  fi
+  rm -f "$INHIBIT_PID_FILE"
+}
+
+# ---------------------------------------------------------------------------
+# 守护子进程：主进程死亡时的兜底恢复
+# ---------------------------------------------------------------------------
+run_guardian() {
+  local main_pid="$1"
+  trap '' INT TERM HUP
+  while kill -0 "$main_pid" 2>/dev/null; do
+    sleep 1
+  done
+  # 主进程已消失；若快照仍在，说明未正常清理，立即兜底恢复。
+  if [[ -f "$STATE_FILE" ]]; then
+    kill_inhibitor
+    restore_xset
+    rm -f "$STATE_FILE"
+  fi
+}
+
+start_guardian() {
+  local main_pid="$1"
+  if command -v setsid >/dev/null 2>&1; then
+    setsid "$SELF" --guardian "$main_pid" </dev/null >/dev/null 2>&1 &
+  else
+    nohup "$SELF" --guardian "$main_pid" </dev/null >/dev/null 2>&1 &
+  fi
+}
+
+# ---------------------------------------------------------------------------
+# 锁屏机制检测（只读，不做任何修改）
+# ---------------------------------------------------------------------------
+detect_lock() {
+  local hits
+  hits="$(pgrep -af 'xss-lock|xautolock|i3lock|light-locker|gnome-screensaver|gsd-power' 2>/dev/null || true)"
+  if [[ -n "$hits" ]]; then
+    while IFS= read -r line; do
+      log "检测到锁屏机制: $line"
+    done <<<"$hits"
+  else
+    log "未检测到常见锁屏守护进程。"
+  fi
+
+  if command -v gsettings >/dev/null 2>&1; then
+    local delay locken
+    delay="$(gsettings get org.gnome.desktop.session idle-delay 2>/dev/null || true)"
+    locken="$(gsettings get org.gnome.desktop.screensaver lock-enabled 2>/dev/null || true)"
+    if [[ -n "$delay" ]]; then
+      log "GNOME idle-delay=$delay lock-enabled=$locken（仅检测，未修改）"
+    fi
+  fi
+}
+
+# ---------------------------------------------------------------------------
+# 退出清理（幂等）
+# ---------------------------------------------------------------------------
+CLEANED=0
+cleanup() {
+  if [[ "$CLEANED" -eq 1 ]]; then return 0; fi
+  CLEANED=1
+  trap - INT TERM HUP EXIT
+  log "restoring display and lock settings..."
+  kill_inhibitor
+  restore_xset
+  rm -f "$STATE_FILE"
+  log "restored."
+}
+
+# ---------------------------------------------------------------------------
+# 模拟训练日志
+# ---------------------------------------------------------------------------
+fmt() {
+  # $1 = 定点整数，$2 = 小数位数
+  local v=$1 d=$2 sign='' div=1 i
+  if (( v < 0 )); then sign='-'; v=$(( -v )); fi
+  for (( i = 0; i < d; i++ )); do div=$(( div * 10 )); done
+  printf '%s%d.%0*d' "$sign" $(( v / div )) "$d" $(( v % div ))
+}
+
+clamp() {
+  # $1 = 变量名（nameref），$2 = 下限，$3 = 上限
+  local -n ref=$1
+  if (( ref < $2 )); then ref=$2; fi
+  if (( ref > $3 )); then ref=$3; fi
+}
+
+run_logs() {
+  local rollout=0 gstep=0 reward=-2381 distance=1243 fps=1843
+  local ploss=-13 vloss=284 entropy=91 mean_reward=4231 success=812
+  local gpu_util='' gpu_mem='' gpu_mem_total='' gpu_temp='' gpu_last=-1000 have_gpu=0
+  if command -v nvidia-smi >/dev/null 2>&1 && nvidia-smi -L >/dev/null 2>&1; then have_gpu=1; fi
+
+  local t pick raw
+  while :; do
+    t="$(date +%H:%M:%S)"
+
+    # 状态推进：每行小幅随机游走，rollout 满一轮再做一次明显更新。
+    rollout=$(( rollout + RANDOM % 49 + 16 ))
+    fps=$(( 1550 + RANDOM % 500 ))
+    reward=$(( reward + RANDOM % 5 - 2 ))
+    distance=$(( distance + RANDOM % 18 ))
+    ploss=$(( ploss + RANDOM % 3 - 1 ))
+    vloss=$(( vloss + RANDOM % 9 - 4 ))
+    entropy=$(( entropy + RANDOM % 3 - 1 ))
+    if (( rollout > 512 )); then
+      rollout=0
+      gstep=$(( gstep + 2048 ))
+      ploss=$(( ploss + RANDOM % 7 - 3 ))
+      vloss=$(( vloss + RANDOM % 15 - 7 ))
+      entropy=$(( entropy + RANDOM % 5 - 2 ))
+      reward=$(( reward + RANDOM % 9 - 2 ))
+      distance=$(( distance + RANDOM % 40 ))
+    fi
+    clamp reward -5000 9000
+    clamp distance 0 99999
+    clamp ploss -60 5
+    clamp vloss 50 900
+    clamp entropy 20 200
+    mean_reward=$(( reward + RANDOM % 400 - 100 ))
+    success=$(( 780 + RANDOM % 180 ))
+
+    if (( have_gpu && SECONDS - gpu_last >= 45 )); then
+      if raw="$(nvidia-smi --query-gpu=utilization.gpu,memory.used,memory.total,temperature.gpu \
+        --format=csv,noheader,nounits -i 0 2>/dev/null)"; then
+        raw="$(tr -d ' ' <<<"$raw" | head -n1)"
+        IFS=',' read -r gpu_util gpu_mem gpu_mem_total gpu_temp <<<"$raw"
+        gpu_last=$SECONDS
+      fi
+    fi
+
+    pick=$(( RANDOM % 100 ))
+    if (( pick < 50 )); then
+      printf '[%s] rollout=%d/512 reward=%s distance=%skm fps=%d\n' \
+        "$t" "$rollout" "$(fmt "$reward" 2)" "$(fmt "$distance" 2)" "$fps"
+    elif (( pick < 68 )); then
+      printf '[%s] PPO update | policy_loss=%s | value_loss=%s | entropy=%s\n' \
+        "$t" "$(fmt "$ploss" 3)" "$(fmt "$vloss" 3)" "$(fmt "$entropy" 2)"
+    elif (( have_gpu && pick < 78 )); then
+      printf '[%s] gpu 0 | util=%s%% | mem=%s/%sMB | temp=%sC\n' \
+        "$t" "${gpu_util:-0}" "${gpu_mem:-0}" "${gpu_mem_total:-0}" "${gpu_temp:-0}"
+    elif (( pick < 86 )); then
+      printf '[%s] mamba | seq_len=2048 | throughput=%d tok/s | mem=%dMB\n' \
+        "$t" $(( 8000 + RANDOM % 7000 )) $(( 1200 + RANDOM % 1800 ))
+    elif (( pick < 92 )); then
+      printf '[%s] replay buffer=%d/1000000 | obs_rms updated | clip_ratio=0.2\n' \
+        "$t" $(( 300000 + RANDOM % 400000 ))
+    elif (( pick < 97 )); then
+      printf '[%s] eval | mean_reward=%s | success_rate=%s%%\n' \
+        "$t" "$(fmt "$mean_reward" 2)" "$(fmt "$success" 1)"
+    else
+      printf '[%s] checkpoint saved: ./checkpoints/model_%d.zip\n' \
+        "$t" "$(( 50000 + gstep ))"
+    fi
+
+    sleep "$(( RANDOM % 4 + 1 ))"
+  done
+}
+
+# ---------------------------------------------------------------------------
+# 主流程
+# ---------------------------------------------------------------------------
+run_my() {
+  capture_xset
+  trap 'cleanup; exit 0' INT TERM HUP
+  trap 'cleanup' EXIT
+
+  start_inhibitor
+  start_guardian "$$"
+  disable_xset
+  detect_lock
+
+  run_logs
+}
+
+case "${1:-}" in
+  --guardian)
+    run_guardian "${2:-}"
+    exit 0
+    ;;
+esac
+
+run_my
